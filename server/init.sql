@@ -5,6 +5,8 @@ create table users (
    password nvarchar(128) not null,
    nickname nvarchar(128),
    role nvarchar(32) not null,
+   mentor_id bigint,
+   peer_id bigint,
    created_at datetime2 not null,
    updated_at datetime2 not null,
    deleted_at datetime2 default NULL

@@ -13,6 +13,7 @@ import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -33,6 +34,7 @@ class AuthController(
         return ResponseEntity(jwtUtils.generateToken(authentication.name), HttpStatus.OK)
     }
 
+    @Transactional
     @PostMapping("/signup")
     fun signup(@RequestBody request: SignupRequest): ResponseEntity<String> {
         logger.info("Received sign up request for ${request.username}")
@@ -42,7 +44,7 @@ class AuthController(
         }
         try {
             val user = userService.signup(request)
-            val jwt = jwtUtils.generateToken(user.getUsername())
+            val jwt = jwtUtils.generateToken(user.username)
             logger.info("Signed up successfully for ${request.username}")
             return ResponseEntity(jwt, HttpStatus.OK)
         } catch (e: Exception) {
