@@ -21,9 +21,9 @@ class UserDetailsServiceImpl(
             ?: throw UsernameNotFoundException("User could not be found with username $username")
 
         return org.springframework.security.core.userdetails.User
-            .withUsername(user.getUsername())
-            .password(user.getPassword())
-            .authorities(getGrantedAuthorities(user.getRole().privileges))
+            .withUsername(user.username)
+            .password(user.password)
+            .authorities(getGrantedAuthorities(user.role.privileges))
             .accountExpired(false)
             .accountLocked(false)
             .credentialsExpired(false)
