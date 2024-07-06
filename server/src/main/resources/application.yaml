@@ -1,3 +1,7 @@
 spring:
   application:
     name: server
+  datasource:
+    url: ${MSSQL_URL}
+    username: ${MSSQL_USERNAME}
+    password: ${MSSQL_PASSWORD}
