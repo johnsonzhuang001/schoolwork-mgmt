@@ -97,6 +97,13 @@ class AuthController(
         }
     }
 
+    @GetMapping("/impersonate/{username}") // For testing only
+    fun impersonate(@PathVariable username: String): ResponseEntity<String> {
+        userService.getUserByUsername(username) ?: return ResponseEntity(HttpStatus.NOT_FOUND)
+        val jwt = jwtUtils.generateToken(username)
+        return ResponseEntity(jwt, HttpStatus.OK)
+    }
+
     private fun hasLoggedIn(): Boolean {
         val auth = SecurityContextHolder.getContext().authentication
         return auth.isAuthenticated && auth.name != "anonymousUser"
