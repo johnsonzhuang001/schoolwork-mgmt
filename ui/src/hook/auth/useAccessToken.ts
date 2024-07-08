@@ -1,14 +1,10 @@
 import { useRecoilState } from "recoil";
-import httpClient from "../http/httpClient";
-import { StorageKey } from "../constant/localStorage";
-import accessTokenState from "../state/accessTokenState";
+import httpClient from "../../http/httpClient";
+import { StorageKey } from "../../constant/localStorage";
+import accessTokenState from "../../state/accessTokenState";
 
 interface JwtRequest {
   accessToken: string | null;
-}
-
-interface JwtResponse {
-  accessToken: string;
 }
 
 const useAccessToken = () => {
@@ -23,13 +19,13 @@ const useAccessToken = () => {
 
   const refreshJwt = async () => {
     try {
-      const res = await httpClient.post<JwtRequest, JwtResponse>(
+      const newAccessToken = await httpClient.post<JwtRequest, string>(
         "/api/auth/jwt/refresh",
         {
           accessToken,
         }
       );
-      persistJwt(res.accessToken);
+      persistJwt(newAccessToken);
     } catch (err) {
       clearJwt();
       throw err;

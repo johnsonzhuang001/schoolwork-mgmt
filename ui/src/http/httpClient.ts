@@ -1,6 +1,15 @@
 import { StorageKey } from "../constant/localStorage";
 
-const BASE_URL = process.env.REACT_APP_API_URL ?? "https://localhost:443";
+const BASE_URL = process.env.REACT_APP_API_URL ?? "http://localhost:8080";
+
+const isJson = (str: string) => {
+  try {
+    JSON.parse(str);
+  } catch (e) {
+    return false;
+  }
+  return true;
+};
 
 class HttpError extends Error {
   readonly status: number;
@@ -26,6 +35,7 @@ const request = async <P, R>({
 }): Promise<R> => {
   const accessToken = localStorage.getItem(StorageKey.ACCESS_TOKEN);
   const isAuth = url.includes("/api/auth");
+  headers["Content-Type"] = "application/json";
   if (accessToken && !isAuth) {
     headers["Authorization"] = `Bearer ${accessToken}`;
   }
@@ -42,13 +52,22 @@ const request = async <P, R>({
     .then((res) => {
       ok = res.ok;
       status = res.status;
-      return res.json();
+      return res.text();
     })
-    .then((json) => {
-      if (ok) {
-        return json;
+    .then((res) => {
+      if (isJson(res)) {
+        const json = JSON.parse(res);
+        if (ok) {
+          return json;
+        } else {
+          throw new HttpError(status, json.message);
+        }
       } else {
-        throw new HttpError(status, json.message);
+        if (ok) {
+          return res;
+        } else {
+          throw new HttpError(status, res);
+        }
       }
     })
     .catch((err: Error) => {

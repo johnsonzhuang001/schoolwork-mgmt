@@ -8,7 +8,8 @@ import SignIn from "../page/auth/SignIn";
 
 const Authenticated = ({ children }: { children: JSX.Element }) => {
   const { self, isLoading } = useSelf();
-  if (!isLoading && !self) {
+  if (isLoading) return null;
+  if (!self) {
     return <Navigate to="/signin" />;
   } else return children;
 };
@@ -19,7 +20,14 @@ const Root = () => {
       <AuthProvider>
         <Routes>
           <Route path="/" element={<Layout />}>
-            <Route index element={<Home />} />
+            <Route
+              index
+              element={
+                <Authenticated>
+                  <Home />
+                </Authenticated>
+              }
+            />
             <Route path="signin" element={<SignIn />} />
           </Route>
         </Routes>
