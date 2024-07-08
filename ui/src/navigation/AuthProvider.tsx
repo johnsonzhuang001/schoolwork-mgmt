@@ -1,5 +1,5 @@
 import React, { ReactNode, useEffect } from "react";
-import useAccessToken from "../hook/useAccessToken";
+import useAccessToken from "../hook/auth/useAccessToken";
 import { useNavigate } from "react-router-dom";
 
 interface AuthProviderProps {
