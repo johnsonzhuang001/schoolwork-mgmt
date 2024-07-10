@@ -8,5 +8,6 @@ import org.springframework.stereotype.Repository
 @Repository
 interface QuestionRepository: CrudRepository<Question, Long> {
     fun findAllByAssignment(assignment: Assignment): List<Question>
+    fun countByAssignment(assignment: Assignment): Int
     fun deleteAllByAssignment(assignment: Assignment)
 }
