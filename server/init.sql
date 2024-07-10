@@ -31,6 +31,8 @@ create sequence assignment_seq start with 1 increment by 1 no cache no cycle;
 create table assignment (
   id bigint not null DEFAULT (NEXT VALUE FOR assignment_seq),
   title nvarchar(256) not null,
+  level varchar(64) not null,
+  deadline datetime2 not null,
   created_at datetime2 not null
 )
 alter table assignment add constraint assignment_pk PRIMARY KEY (id);

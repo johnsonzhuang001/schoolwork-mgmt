@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 @Service
 class AssignmentService(
@@ -29,6 +30,8 @@ class AssignmentService(
         val now = LocalDateTime.now()
         val assignment = assignmentRepository.save(Assignment(
             title = request.title,
+            level = request.level,
+            deadline = request.deadline,
             createdAt = now,
         ))
         logger.info("Successfully created the assignment")
@@ -54,10 +57,16 @@ class AssignmentService(
         assignmentRepository.delete(assignment)
     }
 
-    fun getAllAssignments(): List<AssignmentDto> = assignmentRepository.findAll().toList().map {
+    fun getAllAssignments(self: User): List<AssignmentDto> = assignmentRepository.findAll().toList().map { assignment ->
+        val questions = questionRepository.findAllByAssignment(assignment)
+        val finishCount = studentQuestionRepository.countByStudentIdAndQuestionIdIn(self.id!!, questions.map { it.id!! })
         AssignmentDto(
-            id = it.id!!,
-            title = it.title,
+            id = assignment.id!!,
+            title = assignment.title,
+            level = assignment.level.displayName,
+            deadline = assignment.deadline.atZone(ZoneOffset.UTC),
+            questionCount = questions.size,
+            finishCount = finishCount
         )
     }
 

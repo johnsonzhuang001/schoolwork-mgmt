@@ -17,7 +17,7 @@ class AssignmentController(
     private val assignmentService: AssignmentService
 ) {
     @GetMapping("/all")
-    fun getAll() = ResponseEntity(assignmentService.getAllAssignments(), HttpStatus.OK)
+    fun getAll() = ResponseEntity(assignmentService.getAllAssignments(userService.requireUserInSession()), HttpStatus.OK)
 
     @GetMapping("/details/{id}")
     fun getAssignment(@PathVariable("id") id: Long) =
