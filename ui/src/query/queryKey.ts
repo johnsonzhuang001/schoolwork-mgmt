@@ -1,4 +1,5 @@
 export const QueryKey = {
+  ASSIGNMENT: "ASSIGNMENT",
   ASSIGNMENTS: "ASSIGNMENTS",
   USER_SELF: "USER_SELF",
 };

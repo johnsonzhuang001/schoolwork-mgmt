@@ -2,7 +2,6 @@ package com.schoolwork.mgmt.server.dto.assignment
 
 import com.schoolwork.mgmt.server.enum.AssignmentGrade
 import java.math.BigDecimal
-import java.time.LocalDateTime
 import java.time.ZonedDateTime
 
 data class QuestionDto(
@@ -28,5 +27,7 @@ data class AssignmentDto(
 data class AssignmentWithQuestionsDto(
     val id: Long,
     val title: String,
+    val level: String,
+    val deadline: ZonedDateTime,
     val questions: List<QuestionDto>,
 )

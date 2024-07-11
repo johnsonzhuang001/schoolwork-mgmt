@@ -4,10 +4,15 @@ import useAssignments from "../hook/assignment/useAssignments";
 import Loading from "../component/Loading";
 import { AssignmentDto } from "../type/Assignment";
 import { DateTime } from "luxon";
+import { useNavigate } from "react-router-dom";
 
 const AssignmentCard = ({ assignment }: { assignment: AssignmentDto }) => {
+  const navigate = useNavigate();
   return (
-    <div className="flex flex-col gap-[10px] p-[15px] rounded-[20px] border-[1px] border-whitegray cursor-pointer hover:shadow-card transition-shadow duration-300">
+    <div
+      className="flex flex-col gap-[10px] p-[15px] rounded-[20px] border-[1px] border-whitegray cursor-pointer hover:shadow-card transition-shadow duration-300"
+      onClick={() => navigate(`/assignment/${assignment.id}`)}
+    >
       <div className="w-full h-[125px] rounded-[15px] bg-whitegray" />
       <div className="flex flex-col gap-[5px]">
         <Text size="lg">{assignment.title}</Text>

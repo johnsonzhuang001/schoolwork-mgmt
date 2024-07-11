@@ -75,6 +75,8 @@ class AssignmentService(
             AssignmentWithQuestionsDto(
                 id = assignment.id!!,
                 title = assignment.title,
+                level = assignment.level.displayName,
+                deadline = assignment.deadline.atZone(ZoneOffset.UTC),
                 questions = questionRepository.findAllByAssignment(assignment).map { question ->
                     QuestionDto(
                         id = question.id!!,
