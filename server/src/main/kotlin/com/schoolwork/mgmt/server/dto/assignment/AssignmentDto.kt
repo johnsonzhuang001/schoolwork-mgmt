@@ -1,6 +1,7 @@
 package com.schoolwork.mgmt.server.dto.assignment
 
 import com.schoolwork.mgmt.server.enum.AssignmentGrade
+import com.schoolwork.mgmt.server.model.Question
 import java.math.BigDecimal
 import java.time.ZonedDateTime
 
@@ -11,6 +12,7 @@ data class QuestionDto(
     val optionB: String,
     val optionC: String,
     val optionD: String,
+    val answer: Question.Answer? = null
 )
 
 data class AssignmentDto(

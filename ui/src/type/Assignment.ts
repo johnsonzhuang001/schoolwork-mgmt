@@ -14,6 +14,7 @@ export interface QuestionDto {
   optionB: string;
   optionC: string;
   optionD: string;
+  answer: QuestionAnswer | null;
 }
 
 export interface AssignmentWithQuestionsDto {
@@ -22,4 +23,11 @@ export interface AssignmentWithQuestionsDto {
   level: string;
   deadline: string;
   questions: ReadonlyArray<QuestionDto>;
+}
+
+export enum QuestionAnswer {
+  A = "A",
+  B = "B",
+  C = "C",
+  D = "D",
 }
