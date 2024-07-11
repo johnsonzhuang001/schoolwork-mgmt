@@ -7,14 +7,8 @@ import Text from "../component/Text";
 import Button from "../component/Button";
 import Loading from "../component/Loading";
 import { DateTime } from "luxon";
-import { QuestionDto } from "../type/Assignment";
-
-enum QuestionAnswer {
-  A = "A",
-  B = "B",
-  C = "C",
-  D = "D",
-}
+import { QuestionAnswer, QuestionDto } from "../type/Assignment";
+import { useSaveAssignment } from "../hook/assignment/useSubmitAssignment";
 
 const CheckBox = ({
   text,
@@ -27,7 +21,7 @@ const CheckBox = ({
 }) => {
   return (
     <div
-      className="flex items-center gap-[5px] cursor-pointer"
+      className="w-fit flex items-center gap-[5px] cursor-pointer"
       onClick={onSelect}
     >
       <div className="w-[18px] h-[18px] flex justify-center items-center rounded-[4px] border-[1px] border-secondary">
@@ -100,12 +94,27 @@ const Assignment = () => {
   const assignmentId = assignmentIdStr ? Number.parseInt(assignmentIdStr) : 0;
   const { assignment, isLoading } = useAssignment(assignmentId);
   const [answers, setAnswers] = useState<Array<QuestionAnswer | null>>([]);
+  const { saving, saveAssignment } = useSaveAssignment();
 
   useEffect(() => {
     if (assignment) {
-      setAnswers(assignment.questions.map((_) => null));
+      setAnswers(assignment.questions.map((question) => question.answer));
     }
   }, [assignment]);
+
+  const onSave = () => {
+    if (assignment) {
+      saveAssignment({
+        id: assignmentId,
+        questions: assignment.questions.map((question, index) => {
+          return {
+            id: question.id,
+            answer: answers[index],
+          };
+        }),
+      });
+    }
+  };
 
   if (!assignment || isLoading) return <Loading />;
 
@@ -122,7 +131,12 @@ const Assignment = () => {
             </Text>
           </div>
           <div className="buttons flex gap-[10px]">
-            <Button type="outline" text="Save" onClick={() => {}} />
+            <Button
+              type="outline"
+              text="Save"
+              loading={saving}
+              onClick={onSave}
+            />
             <Button
               type="outline"
               color="blue"

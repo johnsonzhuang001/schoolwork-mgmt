@@ -70,7 +70,7 @@ class AssignmentService(
         )
     }
 
-    fun getAssignment(assignmentId: Long): AssignmentWithQuestionsDto = assignmentRepository
+    fun getAssignment(self: User, assignmentId: Long): AssignmentWithQuestionsDto = assignmentRepository
         .findByIdOrNull(assignmentId)?.let { assignment ->
             AssignmentWithQuestionsDto(
                 id = assignment.id!!,
@@ -85,6 +85,7 @@ class AssignmentService(
                         optionB = question.optionB,
                         optionC = question.optionC,
                         optionD = question.optionD,
+                        answer = studentQuestionRepository.findByStudentIdAndQuestionId(self.id!!, question.id)?.answer
                     )
                 }
             )
@@ -155,17 +156,23 @@ class AssignmentService(
         request.questions.forEach { question ->
             val existingStudentQuestion = studentQuestionRepository.findByStudentIdAndQuestionId(self.id!!, question.id)
             if (existingStudentQuestion != null) {
-                existingStudentQuestion.answer = question.answer
-                existingStudentQuestion.updatedAt = now
-                studentQuestionRepository.save(existingStudentQuestion)
+                question.answer?.let {
+                    existingStudentQuestion.answer = question.answer
+                    existingStudentQuestion.updatedAt = now
+                    studentQuestionRepository.save(existingStudentQuestion)
+                } ?: run {
+                    studentQuestionRepository.delete(existingStudentQuestion)
+                }
             } else {
-                studentQuestionRepository.save(StudentQuestion(
-                    studentId = self.id,
-                    questionId = question.id,
-                    answer = question.answer,
-                    createdAt = now,
-                    updatedAt = now,
-                ))
+                question.answer?.let {
+                    studentQuestionRepository.save(StudentQuestion(
+                        studentId = self.id,
+                        questionId = question.id,
+                        answer = question.answer,
+                        createdAt = now,
+                        updatedAt = now,
+                    ))
+                }
             }
         }
         if (readyForScore) {

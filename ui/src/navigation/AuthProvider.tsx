@@ -15,7 +15,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         navigate("/signin");
       });
     }
-  }, [accessToken, navigate, refreshJwt]);
+  }, [accessToken]);
   return <div>{children}</div>;
 };
 

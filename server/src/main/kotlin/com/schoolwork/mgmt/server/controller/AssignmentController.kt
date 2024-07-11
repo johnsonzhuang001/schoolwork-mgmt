@@ -21,7 +21,7 @@ class AssignmentController(
 
     @GetMapping("/details/{id}")
     fun getAssignment(@PathVariable("id") id: Long) =
-        ResponseEntity(assignmentService.getAssignment(id), HttpStatus.OK)
+        ResponseEntity(assignmentService.getAssignment(userService.requireUserInSession(), id), HttpStatus.OK)
 
     @Transactional
     @PostMapping("/create")
