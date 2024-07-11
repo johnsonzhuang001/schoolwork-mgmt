@@ -5,6 +5,7 @@ import useSelf from "../hook/user/useSelf";
 import Layout from "./Layout";
 import Home from "../page/Home";
 import SignIn from "../page/auth/SignIn";
+import Assignment from "../page/Assignment";
 
 const Authenticated = ({ children }: { children: JSX.Element }) => {
   const { self, isLoading } = useSelf();
@@ -25,6 +26,14 @@ const Root = () => {
               element={
                 <Authenticated>
                   <Home />
+                </Authenticated>
+              }
+            />
+            <Route
+              path="assignment/:assignmentId"
+              element={
+                <Authenticated>
+                  <Assignment />
                 </Authenticated>
               }
             />

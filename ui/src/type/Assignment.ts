@@ -19,5 +19,7 @@ export interface QuestionDto {
 export interface AssignmentWithQuestionsDto {
   id: number;
   title: string;
+  level: string;
+  deadline: string;
   questions: ReadonlyArray<QuestionDto>;
 }
