@@ -9,20 +9,27 @@ import Loading from "../component/Loading";
 import { DateTime } from "luxon";
 import { QuestionAnswer, QuestionDto } from "../type/Assignment";
 import useSubmitAssignment from "../hook/assignment/useSubmitAssignment";
+import useWithdrawAssignment from "../hook/assignment/useWithdrawAssignment";
 
 const CheckBox = ({
   text,
   selected,
   onSelect,
+  disabled = false,
 }: {
   text: string;
   selected: boolean;
   onSelect: () => void;
+  disabled?: boolean;
 }) => {
   return (
     <div
-      className="w-fit flex items-center gap-[5px] cursor-pointer"
-      onClick={onSelect}
+      className={`w-fit flex items-center gap-[5px] ${
+        disabled ? "" : "cursor-pointer"
+      }`}
+      onClick={() => {
+        if (!disabled) onSelect();
+      }}
     >
       <div className="w-[18px] h-[18px] flex justify-center items-center rounded-[4px] border-[1px] border-secondary">
         <div
@@ -42,12 +49,14 @@ const QuesitonCard = ({
   onSelect,
   answer,
   error,
+  submitted,
 }: {
   answer: QuestionAnswer | null;
   index: number;
   question: QuestionDto;
   onSelect: (answer: QuestionAnswer | null) => void;
   error: string;
+  submitted: boolean;
 }) => {
   return (
     <div className="question flex flex-col gap-[10px] p-[10px] border-[1px] border-whitegray rounded-[6px]">
@@ -64,6 +73,7 @@ const QuesitonCard = ({
       <div className="options flex flex-col gap-[5px]">
         <CheckBox
           text={question.optionA}
+          disabled={submitted}
           selected={answer === QuestionAnswer.A}
           onSelect={() =>
             onSelect(answer === QuestionAnswer.A ? null : QuestionAnswer.A)
@@ -71,6 +81,7 @@ const QuesitonCard = ({
         />
         <CheckBox
           text={question.optionB}
+          disabled={submitted}
           selected={answer === QuestionAnswer.B}
           onSelect={() =>
             onSelect(answer === QuestionAnswer.B ? null : QuestionAnswer.B)
@@ -78,6 +89,7 @@ const QuesitonCard = ({
         />
         <CheckBox
           text={question.optionC}
+          disabled={submitted}
           selected={answer === QuestionAnswer.C}
           onSelect={() =>
             onSelect(answer === QuestionAnswer.C ? null : QuestionAnswer.C)
@@ -85,6 +97,7 @@ const QuesitonCard = ({
         />
         <CheckBox
           text={question.optionD}
+          disabled={submitted}
           selected={answer === QuestionAnswer.D}
           onSelect={() =>
             onSelect(answer === QuestionAnswer.D ? null : QuestionAnswer.D)
@@ -102,6 +115,7 @@ const Assignment = () => {
   const { assignment, isLoading } = useAssignment(assignmentId);
   const [answers, setAnswers] = useState<Array<QuestionAnswer | null>>([]);
   const { submitting, submitAssignment } = useSubmitAssignment();
+  const { withdrawing, withdrawSubmission } = useWithdrawAssignment();
   const [errors, setErrors] = useState<Array<string>>([]);
 
   useEffect(() => {
@@ -177,13 +191,22 @@ const Assignment = () => {
           </div>
           <div className="buttons flex gap-[10px]">
             {assignment.submitted && (
-              <Button
-                type="outline"
-                color="secondary"
-                disabled
-                onClick={() => {}}
-                text="Submitted"
-              />
+              <>
+                <Button
+                  type="outline"
+                  color="red"
+                  loading={withdrawing}
+                  onClick={() => withdrawSubmission(assignment.id)}
+                  text="Withdraw"
+                />
+                <Button
+                  type="outline"
+                  color="secondary"
+                  disabled
+                  onClick={() => {}}
+                  text="Submitted"
+                />
+              </>
             )}
             {!assignment.submitted && (
               <>
@@ -197,6 +220,7 @@ const Assignment = () => {
                   type="outline"
                   color="blue"
                   text="Submit"
+                  loading={submitting}
                   onClick={onSubmit}
                 />
               </>
@@ -233,6 +257,7 @@ const Assignment = () => {
                     return newAnswers;
                   })
                 }
+                submitted={assignment.submitted}
               />
             );
           })}
