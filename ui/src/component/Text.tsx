@@ -76,6 +76,8 @@ const Text: React.FC<TextProps> = ({
         return "text-white";
       case "warning":
         return "text-yellow";
+      case "success":
+        return "text-green";
       default:
         return "text-primary";
     }

@@ -22,6 +22,7 @@ data class AssignmentDto(
     val deadline: ZonedDateTime,
     val questionCount: Int,
     val finishCount: Int,
+    val submitted: Boolean,
     val score: BigDecimal? = null,
     val grade: AssignmentGrade? = null
 )
@@ -31,5 +32,7 @@ data class AssignmentWithQuestionsDto(
     val title: String,
     val level: String,
     val deadline: ZonedDateTime,
+    val submitted: Boolean,
+    val score: BigDecimal? = null,
     val questions: List<QuestionDto>,
 )
