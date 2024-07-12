@@ -29,10 +29,18 @@ const AssignmentCard = ({ assignment }: { assignment: AssignmentDto }) => {
         </div>
       </div>
       <div className="flex flex-col gap-[5px]">
-        <Text size="sm">Progress</Text>
+        {assignment.submitted ? (
+          <Text type="success" size="sm">
+            Submitted
+          </Text>
+        ) : (
+          <Text size="sm">Progress</Text>
+        )}
         <div className="w-full h-[10px] rounded-[5px] bg-whitegray overflow-hidden">
           <div
-            className="h-[10px] rounded-[5px] bg-blue"
+            className={`h-[10px] rounded-[5px] ${
+              assignment.submitted ? "bg-green" : "bg-blue"
+            }`}
             style={{
               width: `${
                 (assignment.finishCount / assignment.questionCount) * 100

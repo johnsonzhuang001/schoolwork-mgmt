@@ -60,23 +60,29 @@ class AssignmentService(
     fun getAllAssignments(self: User): List<AssignmentDto> = assignmentRepository.findAll().toList().map { assignment ->
         val questions = questionRepository.findAllByAssignment(assignment)
         val finishCount = studentQuestionRepository.countByStudentIdAndQuestionIdIn(self.id!!, questions.map { it.id!! })
+        val studentAssignment = studentAssignmentRepository.findByStudentIdAndAssignmentId(self.id, assignment.id!!)
         AssignmentDto(
-            id = assignment.id!!,
+            id = assignment.id,
             title = assignment.title,
             level = assignment.level.displayName,
             deadline = assignment.deadline.atZone(ZoneOffset.UTC),
             questionCount = questions.size,
-            finishCount = finishCount
+            finishCount = finishCount,
+            submitted = studentAssignment != null,
+            score = studentAssignment?.score,
         )
     }
 
     fun getAssignment(self: User, assignmentId: Long): AssignmentWithQuestionsDto = assignmentRepository
         .findByIdOrNull(assignmentId)?.let { assignment ->
+            val studentAssignment = studentAssignmentRepository.findByStudentIdAndAssignmentId(self.id!!, assignment.id!!)
             AssignmentWithQuestionsDto(
-                id = assignment.id!!,
+                id = assignment.id,
                 title = assignment.title,
                 level = assignment.level.displayName,
                 deadline = assignment.deadline.atZone(ZoneOffset.UTC),
+                submitted = studentAssignment != null,
+                score = studentAssignment?.score,
                 questions = questionRepository.findAllByAssignment(assignment).map { question ->
                     QuestionDto(
                         id = question.id!!,
@@ -85,7 +91,7 @@ class AssignmentService(
                         optionB = question.optionB,
                         optionC = question.optionC,
                         optionD = question.optionD,
-                        answer = studentQuestionRepository.findByStudentIdAndQuestionId(self.id!!, question.id)?.answer
+                        answer = studentQuestionRepository.findByStudentIdAndQuestionId(self.id, question.id)?.answer
                     )
                 }
             )

@@ -4,4 +4,5 @@ export type TextColor =
   | "link"
   | "danger"
   | "white"
-  | "warning";
+  | "warning"
+  | "success";

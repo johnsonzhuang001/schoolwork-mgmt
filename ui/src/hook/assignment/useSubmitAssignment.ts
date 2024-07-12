@@ -13,15 +13,19 @@ interface SubmitAssignmentRequest {
   }>;
 }
 
-export const useSaveAssignment = () => {
+const useSubmitAssignment = () => {
   const { pushNotification } = useNotification();
   const { mutate, isPending } = useMutation<
     unknown,
     unknown,
-    SubmitAssignmentRequest
+    { request: SubmitAssignmentRequest; readyForScore: boolean }
   >({
-    mutationFn: (request) => httpClient.post("/api/assignment/save", request),
-    onSuccess: (_, request) => {
+    mutationFn: ({ request, readyForScore }) =>
+      httpClient.post(
+        readyForScore ? "/api/assignment/submit" : "/api/assignment/save",
+        request
+      ),
+    onSuccess: (_, { request, readyForScore }) => {
       Promise.all([
         queryClient.invalidateQueries({
           queryKey: [QueryKey.ASSIGNMENTS],
@@ -31,21 +35,27 @@ export const useSaveAssignment = () => {
         }),
       ]).then(() => {
         pushNotification({
-          text: "Successfully saved the progress.",
+          text: readyForScore
+            ? "Successfully submitted the assignment"
+            : "Successfully saved the progress.",
           type: "success",
         });
       });
     },
-    onError: () => {
+    onError: (_, { readyForScore }) => {
       pushNotification({
-        text: "Failed to save the progress",
+        text: readyForScore
+          ? "Failed to submit the assignment"
+          : "Failed to save the progress",
         type: "danger",
       });
     },
   });
 
   return {
-    saveAssignment: mutate,
-    saving: isPending,
+    submitAssignment: mutate,
+    submitting: isPending,
   };
 };
+
+export default useSubmitAssignment;

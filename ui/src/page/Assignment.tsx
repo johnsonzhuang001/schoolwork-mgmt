@@ -8,7 +8,7 @@ import Button from "../component/Button";
 import Loading from "../component/Loading";
 import { DateTime } from "luxon";
 import { QuestionAnswer, QuestionDto } from "../type/Assignment";
-import { useSaveAssignment } from "../hook/assignment/useSubmitAssignment";
+import useSubmitAssignment from "../hook/assignment/useSubmitAssignment";
 
 const CheckBox = ({
   text,
@@ -41,18 +41,25 @@ const QuesitonCard = ({
   question,
   onSelect,
   answer,
+  error,
 }: {
   answer: QuestionAnswer | null;
   index: number;
   question: QuestionDto;
   onSelect: (answer: QuestionAnswer | null) => void;
+  error: string;
 }) => {
   return (
     <div className="question flex flex-col gap-[10px] p-[10px] border-[1px] border-whitegray rounded-[6px]">
-      <div>
+      <div className="flex flex-col gap-[5px]">
         <Text size="sm">
           {index}. {question.description}
         </Text>
+        {error && (
+          <Text type="danger" size="sm">
+            {error}
+          </Text>
+        )}
       </div>
       <div className="options flex flex-col gap-[5px]">
         <CheckBox
@@ -94,24 +101,62 @@ const Assignment = () => {
   const assignmentId = assignmentIdStr ? Number.parseInt(assignmentIdStr) : 0;
   const { assignment, isLoading } = useAssignment(assignmentId);
   const [answers, setAnswers] = useState<Array<QuestionAnswer | null>>([]);
-  const { saving, saveAssignment } = useSaveAssignment();
+  const { submitting, submitAssignment } = useSubmitAssignment();
+  const [errors, setErrors] = useState<Array<string>>([]);
 
   useEffect(() => {
     if (assignment) {
       setAnswers(assignment.questions.map((question) => question.answer));
+      setErrors(assignment.questions.map((_) => ""));
     }
   }, [assignment]);
 
   const onSave = () => {
     if (assignment) {
-      saveAssignment({
-        id: assignmentId,
-        questions: assignment.questions.map((question, index) => {
-          return {
-            id: question.id,
-            answer: answers[index],
-          };
-        }),
+      submitAssignment({
+        readyForScore: false,
+        request: {
+          id: assignmentId,
+          questions: assignment.questions.map((question, index) => {
+            return {
+              id: question.id,
+              answer: answers[index],
+            };
+          }),
+        },
+      });
+    }
+  };
+
+  const validateAssignment = () => {
+    let valid = true;
+    if (assignment) {
+      setErrors(() => assignment.questions.map((_) => ""));
+      const newErrors = [...errors];
+      assignment.questions.forEach((_, index) => {
+        if (!answers[index]) {
+          newErrors[index] = "Please answer this question.";
+          valid = false;
+        }
+      });
+      setErrors(() => newErrors);
+    }
+    return valid;
+  };
+
+  const onSubmit = () => {
+    if (assignment && validateAssignment()) {
+      submitAssignment({
+        readyForScore: true,
+        request: {
+          id: assignmentId,
+          questions: assignment.questions.map((question, index) => {
+            return {
+              id: question.id,
+              answer: answers[index],
+            };
+          }),
+        },
       });
     }
   };
@@ -120,7 +165,7 @@ const Assignment = () => {
 
   return (
     <MainBox>
-      <div className="flex flex-col gap-[15px] p-[10px] bg-white">
+      <div className="flex flex-col gap-[15px] p-[10px] bg-white rounded-[6px]">
         <div className="actions w-full flex justify-between items-center">
           <div
             className="p-[5px] rounded-[6px] border-[1px] border-secondary cursor-pointer opacity-90 hover:opacity-70 transition-opacity duration-300"
@@ -131,18 +176,31 @@ const Assignment = () => {
             </Text>
           </div>
           <div className="buttons flex gap-[10px]">
-            <Button
-              type="outline"
-              text="Save"
-              loading={saving}
-              onClick={onSave}
-            />
-            <Button
-              type="outline"
-              color="blue"
-              text="Submit"
-              onClick={() => {}}
-            />
+            {assignment.submitted && (
+              <Button
+                type="outline"
+                color="secondary"
+                disabled
+                onClick={() => {}}
+                text="Submitted"
+              />
+            )}
+            {!assignment.submitted && (
+              <>
+                <Button
+                  type="outline"
+                  text="Save"
+                  loading={submitting}
+                  onClick={onSave}
+                />
+                <Button
+                  type="outline"
+                  color="blue"
+                  text="Submit"
+                  onClick={onSubmit}
+                />
+              </>
+            )}
           </div>
         </div>
         <div className="title flex flex-col gap-[3px]">
@@ -167,6 +225,7 @@ const Assignment = () => {
                 answer={answers[index]}
                 index={index + 1}
                 question={question}
+                error={errors[index]}
                 onSelect={(answer) =>
                   setAnswers((prev) => {
                     const newAnswers = [...prev];

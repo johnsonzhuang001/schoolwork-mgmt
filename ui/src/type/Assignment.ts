@@ -3,6 +3,8 @@ export interface AssignmentDto {
   title: string;
   level: string;
   deadline: string;
+  submitted: boolean;
+  score: number | null;
   questionCount: number;
   finishCount: number;
 }
@@ -22,6 +24,8 @@ export interface AssignmentWithQuestionsDto {
   title: string;
   level: string;
   deadline: string;
+  submitted: boolean;
+  score: number | null;
   questions: ReadonlyArray<QuestionDto>;
 }
 
