@@ -3,6 +3,7 @@ package com.schoolwork.mgmt.server.service
 import com.schoolwork.mgmt.server.dto.assignment.*
 import com.schoolwork.mgmt.server.error.NotFoundException
 import com.schoolwork.mgmt.server.error.UnauthorizedException
+import com.schoolwork.mgmt.server.error.ValidationException
 import com.schoolwork.mgmt.server.model.*
 import com.schoolwork.mgmt.server.repository.*
 import org.apache.logging.log4j.LogManager
@@ -111,8 +112,11 @@ class AssignmentService(
 
     fun withdrawSubmission(self: User, assignmentId: Long) {
         logger.info("Withdrawing the submission for ${self.username} of assignment $assignmentId")
-        assignmentRepository.findByIdOrNull(assignmentId)
-            ?: throw NotFoundException("Assignment with id $assignmentId not found.")
+        assignmentRepository.findByIdOrNull(assignmentId)?.let {
+            validateDeadline(it)
+        } ?: run {
+            throw NotFoundException("Assignment with id $assignmentId not found.")
+        }
         val existingStudentAssignment = studentAssignmentRepository
             .findByStudentIdAndAssignmentId(self.id!!, assignmentId)
             ?: throw NotFoundException("Assignment submission record is not found for ${self.username} of assignment $assignmentId.")
@@ -154,9 +158,19 @@ class AssignmentService(
         }
     }
 
+    private fun validateDeadline(assignment: Assignment) {
+        if (!assignment.deadline.isAfter(LocalDateTime.now())) {
+            throw ValidationException("Deadline has passed for submission of assignment ${assignment.id}.")
+        }
+    }
+
     private fun submitAssignment(self: User, request: SubmitAssignmentRequest, readyForScore: Boolean) {
-        val assignment = assignmentRepository.findByIdOrNull(request.id)
-            ?: throw NotFoundException("Assignment with id ${request.id} not found")
+        val assignment = assignmentRepository.findByIdOrNull(request.id)?.let {
+            validateDeadline(it)
+            it
+        } ?: run {
+            throw NotFoundException("Assignment with id ${request.id} not found")
+        }
         val now = LocalDateTime.now()
         // Submit question answers
         request.questions.forEach { question ->

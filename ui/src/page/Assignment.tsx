@@ -49,14 +49,14 @@ const QuesitonCard = ({
   onSelect,
   answer,
   error,
-  submitted,
+  disabled,
 }: {
   answer: QuestionAnswer | null;
   index: number;
   question: QuestionDto;
   onSelect: (answer: QuestionAnswer | null) => void;
   error: string;
-  submitted: boolean;
+  disabled: boolean;
 }) => {
   return (
     <div className="question flex flex-col gap-[10px] p-[10px] border-[1px] border-whitegray rounded-[6px]">
@@ -73,7 +73,7 @@ const QuesitonCard = ({
       <div className="options flex flex-col gap-[5px]">
         <CheckBox
           text={question.optionA}
-          disabled={submitted}
+          disabled={disabled}
           selected={answer === QuestionAnswer.A}
           onSelect={() =>
             onSelect(answer === QuestionAnswer.A ? null : QuestionAnswer.A)
@@ -81,7 +81,7 @@ const QuesitonCard = ({
         />
         <CheckBox
           text={question.optionB}
-          disabled={submitted}
+          disabled={disabled}
           selected={answer === QuestionAnswer.B}
           onSelect={() =>
             onSelect(answer === QuestionAnswer.B ? null : QuestionAnswer.B)
@@ -89,7 +89,7 @@ const QuesitonCard = ({
         />
         <CheckBox
           text={question.optionC}
-          disabled={submitted}
+          disabled={disabled}
           selected={answer === QuestionAnswer.C}
           onSelect={() =>
             onSelect(answer === QuestionAnswer.C ? null : QuestionAnswer.C)
@@ -97,7 +97,7 @@ const QuesitonCard = ({
         />
         <CheckBox
           text={question.optionD}
-          disabled={submitted}
+          disabled={disabled}
           selected={answer === QuestionAnswer.D}
           onSelect={() =>
             onSelect(answer === QuestionAnswer.D ? null : QuestionAnswer.D)
@@ -140,6 +140,12 @@ const Assignment = () => {
         },
       });
     }
+  };
+
+  const hasPassedDeadline = () => {
+    return (
+      !!assignment && DateTime.now() > DateTime.fromISO(assignment.deadline)
+    );
   };
 
   const validateAssignment = () => {
@@ -192,13 +198,24 @@ const Assignment = () => {
           <div className="buttons flex gap-[10px]">
             {assignment.submitted && (
               <>
-                <Button
-                  type="outline"
-                  color="red"
-                  loading={withdrawing}
-                  onClick={() => withdrawSubmission(assignment.id)}
-                  text="Withdraw"
-                />
+                {!hasPassedDeadline() && (
+                  <Button
+                    type="outline"
+                    color="red"
+                    loading={withdrawing}
+                    onClick={() => withdrawSubmission(assignment.id)}
+                    text="Withdraw"
+                  />
+                )}
+                {hasPassedDeadline() && (
+                  <Button
+                    type="outline"
+                    color="secondary"
+                    disabled
+                    onClick={() => {}}
+                    text="Deadline has passed"
+                  />
+                )}
                 <Button
                   type="outline"
                   color="secondary"
@@ -210,19 +227,32 @@ const Assignment = () => {
             )}
             {!assignment.submitted && (
               <>
-                <Button
-                  type="outline"
-                  text="Save"
-                  loading={submitting}
-                  onClick={onSave}
-                />
-                <Button
-                  type="outline"
-                  color="blue"
-                  text="Submit"
-                  loading={submitting}
-                  onClick={onSubmit}
-                />
+                {hasPassedDeadline() && (
+                  <Button
+                    type="outline"
+                    color="secondary"
+                    disabled
+                    onClick={() => {}}
+                    text="Deadline has passed"
+                  />
+                )}
+                {!hasPassedDeadline() && (
+                  <>
+                    <Button
+                      type="outline"
+                      text="Save"
+                      loading={submitting}
+                      onClick={onSave}
+                    />
+                    <Button
+                      type="outline"
+                      color="blue"
+                      text="Submit"
+                      loading={submitting}
+                      onClick={onSubmit}
+                    />
+                  </>
+                )}
               </>
             )}
           </div>
@@ -257,7 +287,7 @@ const Assignment = () => {
                     return newAnswers;
                   })
                 }
-                submitted={assignment.submitted}
+                disabled={assignment.submitted || hasPassedDeadline()}
               />
             );
           })}
