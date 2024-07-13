@@ -10,6 +10,7 @@ import { DateTime } from "luxon";
 import { QuestionAnswer, QuestionDto } from "../type/Assignment";
 import useSubmitAssignment from "../hook/assignment/useSubmitAssignment";
 import useWithdrawAssignment from "../hook/assignment/useWithdrawAssignment";
+import Back from "../component/Back";
 
 const CheckBox = ({
   text,
@@ -191,14 +192,7 @@ const Assignment = () => {
     <MainBox>
       <div className="flex flex-col gap-[15px] p-[10px] bg-white rounded-[6px]">
         <div className="actions w-full flex justify-between items-center">
-          <div
-            className="p-[5px] rounded-[6px] border-[1px] border-secondary cursor-pointer opacity-90 hover:opacity-70 transition-opacity duration-300"
-            onClick={() => navigate("/")}
-          >
-            <Text type="secondary">
-              <IoArrowBackOutline size="20px" />
-            </Text>
-          </div>
+          <Back />
           <div className="buttons flex gap-[10px]">
             {assignment.submitted && (
               <>
