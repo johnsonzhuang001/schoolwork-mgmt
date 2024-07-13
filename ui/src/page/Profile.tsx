@@ -13,6 +13,7 @@ import LoadingWithText from "../component/LoadingWithText";
 import AssignmentCard from "../component/AssignmentCard";
 import useStudyGroup from "../hook/user/useStudyGroup";
 import UserCard from "../component/UserCard";
+import useUpdateProfile from "../hook/user/useUpdateProfile";
 
 interface ProfileProps {
   user: UserDto;
@@ -78,7 +79,26 @@ const Profile: React.FC<ProfileProps> = ({ user, readonly }) => {
   const [nickname, setNickname] = useState(user?.nickname ?? "");
   const [biography, setBiography] = useState(user?.biography ?? "");
   const { signout } = useSignOut();
+  const { updateProfile, isLoading: updatingProfile } = useUpdateProfile();
   const navigate = useNavigate();
+  const profileUpdated =
+    nickname !== user.nickname || biography !== user.biography;
+  const submitProfileUpdate = () => {
+    if (user && profileUpdated) {
+      updateProfile(
+        {
+          username: user.username,
+          nickname,
+          biography,
+        },
+        {
+          onSuccess: () => {
+            setEditingProfile(false);
+          },
+        }
+      );
+    }
+  };
   const profileButtons = () => {
     return (
       <>
@@ -96,23 +116,23 @@ const Profile: React.FC<ProfileProps> = ({ user, readonly }) => {
         )}
         {!readonly && editingProfile && (
           <>
-            {/*<Button*/}
-            {/*    fullWidth*/}
-            {/*    loading={updatingProfile}*/}
-            {/*    text="Save"*/}
-            {/*    disabled={!profileUpdated}*/}
-            {/*    onClick={submitProfileUpdate}*/}
-            {/*/>*/}
-            {/*<Button*/}
-            {/*    fullWidth*/}
-            {/*    loading={updatingProfile}*/}
-            {/*    type="outline"*/}
-            {/*    color="red"*/}
-            {/*    text="Cancel"*/}
-            {/*    onClick={() => {*/}
-            {/*        setEditingProfile(false);*/}
-            {/*    }}*/}
-            {/*/>*/}
+            <Button
+              fullWidth
+              loading={updatingProfile}
+              text="Save"
+              disabled={!profileUpdated || !nickname}
+              onClick={submitProfileUpdate}
+            />
+            <Button
+              fullWidth
+              loading={updatingProfile}
+              type="outline"
+              color="red"
+              text="Cancel"
+              onClick={() => {
+                setEditingProfile(false);
+              }}
+            />
           </>
         )}
         {!readonly && !editingProfile && (
@@ -170,7 +190,7 @@ const Profile: React.FC<ProfileProps> = ({ user, readonly }) => {
               size="sm"
               className="text-center"
             >
-              {user?.biography ??
+              {user?.biography ||
                 (readonly
                   ? "This person has not left any word here..."
                   : "Please add your biography here.")}

@@ -2,6 +2,7 @@ package com.schoolwork.mgmt.server.service
 
 import com.schoolwork.mgmt.server.constant.UserConstants
 import com.schoolwork.mgmt.server.dto.SignupRequest
+import com.schoolwork.mgmt.server.dto.user.ProfileUpdateRequest
 import com.schoolwork.mgmt.server.dto.user.UserDto
 import com.schoolwork.mgmt.server.error.NotFoundException
 import com.schoolwork.mgmt.server.error.UnauthorizedException
@@ -59,6 +60,7 @@ class UserService(
             password = passwordEncoder.encode(request.password),
             nickname = request.nickname,
             role = UserRole.STUDENT,
+            biography = "",
             createdAt = now,
             updatedAt = now,
         ))
@@ -72,6 +74,14 @@ class UserService(
             throw ValidationException("User ${self.username} does not have a mentor or peer.")
         }
         return listOf(self.mentor, self.peer, self).map { UserDto(it!!) }
+    }
+
+    fun updateProfile(self: User, request: ProfileUpdateRequest): User {
+        val existingUser = getExistingUserAndValidateOwnership(self, request.username)
+        existingUser.nickname = request.nickname
+        existingUser.biography = request.biography
+        existingUser.updatedAt = LocalDateTime.now()
+        return userRepository.save(existingUser)
     }
 
     private fun createPeerAndMentor(user: User) {
@@ -117,12 +127,10 @@ class UserService(
         }
     }
 
-    private fun getExistingUserAndValidateOwnership(user: User, id: Long): User {
-        if (user.id != id) {
+    private fun getExistingUserAndValidateOwnership(user: User, username: String): User {
+        if (user.username != username) {
             throw UnauthorizedException()
         }
-        val existingUserOptional = userRepository.findById(id)
-        if (existingUserOptional.isEmpty) throw NotFoundException("User with id $id does not exist.")
-        return existingUserOptional.get()
+        return userRepository.findByUsername(username) ?: throw NotFoundException("User $username does not exist.")
     }
 }
