@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { QueryKey } from "../../query/queryKey";
 import httpClient from "../../http/httpClient";
-import { SelfDto, UserDto } from "../../type/User";
+import { UserDto } from "../../type/User";
 import useAuthenticatedQueryFn from "../auth/useAuthenticatedQueryFn";
 import useAccessToken from "../auth/useAccessToken";
 

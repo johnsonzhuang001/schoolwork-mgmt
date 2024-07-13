@@ -59,10 +59,14 @@ class AssignmentService(
         assignmentRepository.delete(assignment)
     }
 
-    fun getAllAssignments(self: User): List<AssignmentDto> = assignmentRepository.findAll().toList().map { assignment ->
+    fun getAllAssignments(self: User, username: String? = null): List<AssignmentDto> = assignmentRepository.findAll().toList().map { assignment ->
+        val user = username?.let { userRepository.findByUsername(username) ?: throw NotFoundException("User $username not found.") } ?: self
+        username?.let {
+            if (user.id != self.id && user.peer?.id != self.id) throw ValidationException("User ${self.username} is not allowed to view ${user.username}'s assignments.")
+        }
         val questions = questionRepository.findAllByAssignment(assignment)
-        val finishCount = studentQuestionRepository.countByStudentIdAndQuestionIdIn(self.id!!, questions.map { it.id!! })
-        val studentAssignment = studentAssignmentRepository.findByStudentIdAndAssignmentId(self.id, assignment.id!!)
+        val finishCount = studentQuestionRepository.countByStudentIdAndQuestionIdIn(user.id!!, questions.map { it.id!! })
+        val studentAssignment = studentAssignmentRepository.findByStudentIdAndAssignmentId(user.id, assignment.id!!)
 
         AssignmentDto(
             id = assignment.id,

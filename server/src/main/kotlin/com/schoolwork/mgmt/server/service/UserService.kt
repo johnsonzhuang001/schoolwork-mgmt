@@ -42,6 +42,15 @@ class UserService(
         return userRepository.findByUsername(username)
     }
 
+    fun getUserByUsername(self: User, username: String): User {
+        userRepository.findByUsername(username)?.let {
+            if (self.mentor?.id != it.id && self.peer?.id != it.id && self.id != it.id) {
+                throw ValidationException("User ${self.username} is not allowed to view $username")
+            }
+            return it
+        } ?: run { throw NotFoundException("User $username not found.") }
+    }
+
     fun signup(request: SignupRequest): User {
         validate(request)
         val now = LocalDateTime.now()
