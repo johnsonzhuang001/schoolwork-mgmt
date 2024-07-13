@@ -8,5 +8,5 @@ export interface UserDto {
   username: string;
   nickname: string;
   role: UserRole;
-  biography: string | null;
+  biography: string;
 }
