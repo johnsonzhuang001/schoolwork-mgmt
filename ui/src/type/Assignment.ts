@@ -5,6 +5,7 @@ export interface AssignmentDto {
   deadline: string;
   submitted: boolean;
   score: number | null;
+  grade: AssignmentGrade;
   questionCount: number;
   finishCount: number;
 }
@@ -34,4 +35,13 @@ export enum QuestionAnswer {
   B = "B",
   C = "C",
   D = "D",
+}
+
+export enum AssignmentGrade {
+  A = "A",
+  B = "B",
+  C = "C",
+  D = "D",
+  E = "E",
+  F = "F",
 }

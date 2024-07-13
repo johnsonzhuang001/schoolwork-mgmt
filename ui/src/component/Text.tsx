@@ -3,7 +3,7 @@ import { TextColor } from "../type/Color";
 
 interface TextProps {
   type?: TextColor;
-  size?: "banner" | "sub-banner" | "xl" | "lg" | "base" | "sm" | "xs";
+  size?: "banner" | "sub-banner" | "2xl" | "xl" | "lg" | "base" | "sm" | "xs";
   pointer?: boolean;
   weight?: "bold" | "normal" | "light";
   inline?: boolean;
@@ -54,6 +54,8 @@ const Text: React.FC<TextProps> = ({
         return "mobile:text-lg text-base";
       case "xl":
         return "mobile:text-xl text-lg";
+      case "2xl":
+        return "mobile:text-2xl text-xl";
       case "sub-banner":
         return "mobile:text-[40px] text-[32px]";
       case "banner":

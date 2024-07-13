@@ -148,6 +148,10 @@ const Assignment = () => {
     );
   };
 
+  const hasScore = () => {
+    return assignment && assignment?.score !== null;
+  };
+
   const validateAssignment = () => {
     let valid = true;
     if (assignment) {
@@ -198,7 +202,7 @@ const Assignment = () => {
           <div className="buttons flex gap-[10px]">
             {assignment.submitted && (
               <>
-                {!hasPassedDeadline() && (
+                {!hasScore() && !hasPassedDeadline() && (
                   <Button
                     type="outline"
                     color="red"
@@ -207,21 +211,14 @@ const Assignment = () => {
                     text="Withdraw"
                   />
                 )}
-                {hasPassedDeadline() && (
-                  <Button
-                    type="outline"
-                    color="secondary"
-                    disabled
-                    onClick={() => {}}
-                    text="Deadline has passed"
-                  />
-                )}
                 <Button
                   type="outline"
-                  color="secondary"
+                  color="green"
                   disabled
                   onClick={() => {}}
-                  text="Submitted"
+                  text={
+                    hasScore() ? `Your Score: ${assignment.score}` : "Submitted"
+                  }
                 />
               </>
             )}

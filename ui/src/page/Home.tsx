@@ -11,6 +11,7 @@ import { AiOutlineMessage } from "react-icons/ai";
 import { MdOutlineEmail } from "react-icons/md";
 import useSelf from "../hook/user/useSelf";
 import { Tooltip } from "@mui/material";
+import { TextColor } from "../type/Color";
 
 const toReadableRole = (role: UserRole) => {
   switch (role) {
@@ -60,6 +61,22 @@ const UserCard = ({ user }: { user: UserDto }) => {
 
 const AssignmentCard = ({ assignment }: { assignment: AssignmentDto }) => {
   const navigate = useNavigate();
+  const getScoreTextType = (score: number | null): TextColor => {
+    if (score === null) {
+      return "primary";
+    }
+    if (score >= 90) {
+      return "success";
+    }
+    if (score >= 80) {
+      return "link";
+    }
+    if (score >= 60) {
+      return "warning";
+    }
+    return "danger";
+  };
+
   return (
     <div
       className="flex flex-col gap-[10px] p-[15px] rounded-[20px] border-[1px] border-whitegray cursor-pointer hover:shadow-card transition-shadow duration-300"
@@ -83,10 +100,10 @@ const AssignmentCard = ({ assignment }: { assignment: AssignmentDto }) => {
       <div className="flex flex-col gap-[5px]">
         {assignment.submitted ? (
           <Text type="success" size="sm">
-            Submitted
+            {assignment.score !== null ? "Scored" : "Submitted"}
           </Text>
         ) : (
-          <Text size="sm">Progress</Text>
+          <Text size="sm">In Progress</Text>
         )}
         <div className="w-full h-[10px] rounded-[5px] bg-whitegray overflow-hidden">
           <div
@@ -103,15 +120,23 @@ const AssignmentCard = ({ assignment }: { assignment: AssignmentDto }) => {
       </div>
       <div className="flex gap-[5px]">
         <div className="flex-1 flex flex-col gap-[10px] p-[10px] rounded-[6px] border-whitegray border-[1px]">
-          <Text size="sm">Score</Text>
+          <Text size="sm" type="secondary">
+            Score
+          </Text>
           <div className="w-full h-[60px] flex justify-center items-center">
-            <Text size="xl">N/A</Text>
+            <Text size="2xl" type={getScoreTextType(assignment.score)}>
+              {assignment.score !== null ? assignment.score : "N/A"}
+            </Text>
           </div>
         </div>
         <div className="flex-1 flex flex-col gap-[10px] p-[10px] rounded-[6px] border-whitegray border-[1px]">
-          <Text size="sm">Grade</Text>
+          <Text size="sm" type="secondary">
+            Grade
+          </Text>
           <div className="w-full h-[60px] flex justify-center items-center">
-            <Text size="xl">N/A</Text>
+            <Text size="2xl" type={getScoreTextType(assignment.score)}>
+              {assignment.grade !== null ? assignment.grade : "N/A"}
+            </Text>
           </div>
         </div>
       </div>
