@@ -1,13 +1,13 @@
 import React from "react";
 import Loading from "./Loading";
-import { SelfDto } from "../type/User";
+import { UserDto } from "../type/User";
 import Text from "./Text";
-import { PiStudentFill } from "react-icons/pi";
 import { Tooltip } from "@mui/material";
 import { IoPersonOutline } from "react-icons/io5";
+import StudentAvatar from "../asset/student_avatar.png";
 
 interface AvatarProps {
-  user: SelfDto | null;
+  user: UserDto | null;
   size: number;
   loading?: boolean;
 }
@@ -26,9 +26,11 @@ const Avatar: React.FC<AvatarProps> = ({ user, size, loading = false }) => {
       >
         {loading && <Loading color="secondary" />}
         {!loading && user ? (
-          <Text size="sub-banner">
-            <PiStudentFill size="30px" />
-          </Text>
+          <img
+            alt="Avatar Image"
+            className="w-full h-full object-cover"
+            src={StudentAvatar}
+          />
         ) : (
           <Text type="secondary">
             <IoPersonOutline size={size / 2} />

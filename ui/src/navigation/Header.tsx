@@ -3,14 +3,17 @@ import Logo from "../component/Logo";
 import MainBox from "../component/MainBox";
 import useSelf from "../hook/user/useSelf";
 import Avatar from "../component/Avatar";
+import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
   const { self, isLoading } = useSelf();
+  const navigate = useNavigate();
   return (
     <div
       className={`user absolute sm:right-[10px] right-0 ${
         !!self ? "cursor-pointer" : ""
       }`}
+      onClick={() => navigate("/profile")}
     >
       <Avatar size={40} user={self} loading={isLoading} />
     </div>

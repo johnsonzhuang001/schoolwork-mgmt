@@ -6,6 +6,8 @@ import Layout from "./Layout";
 import Home from "../page/Home";
 import SignIn from "../page/auth/SignIn";
 import Assignment from "../page/Assignment";
+import SelfProfile from "../page/SelfProfile";
+import UserProfile from "../page/UserProfile";
 
 const Authenticated = ({ children }: { children: JSX.Element }) => {
   const { self, isLoading } = useSelf();
@@ -34,6 +36,22 @@ const Root = () => {
               element={
                 <Authenticated>
                   <Assignment />
+                </Authenticated>
+              }
+            />
+            <Route
+              path="profile"
+              element={
+                <Authenticated>
+                  <SelfProfile />
+                </Authenticated>
+              }
+            />
+            <Route
+              path="profile/:username"
+              element={
+                <Authenticated>
+                  <UserProfile />
                 </Authenticated>
               }
             />

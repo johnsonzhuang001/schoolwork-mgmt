@@ -1,7 +1,7 @@
 package com.schoolwork.mgmt.server.controller
 
-import com.schoolwork.mgmt.server.dto.user.SelfDto
 import com.schoolwork.mgmt.server.dto.user.UserDto
+import com.schoolwork.mgmt.server.error.HttpException
 import com.schoolwork.mgmt.server.service.UserService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -14,9 +14,15 @@ class UserController(
 ) {
 
     @GetMapping("/self")
-    fun getSelf(): ResponseEntity<SelfDto?> {
+    fun getSelf(): ResponseEntity<UserDto> {
         val user = userService.requireUserInSession()
-        return ResponseEntity(SelfDto(user), HttpStatus.OK)
+        return ResponseEntity(UserDto(user), HttpStatus.OK)
+    }
+
+    @GetMapping("/username/{username}")
+    fun getUserByUsername(@PathVariable username: String): ResponseEntity<UserDto?> {
+        val user = userService.getUserByUsername(username) ?: throw HttpException(HttpStatus.NOT_FOUND, "User with username $username is not found")
+        return ResponseEntity(UserDto(user), HttpStatus.OK)
     }
 
     @GetMapping("/group")

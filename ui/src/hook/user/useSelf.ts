@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { QueryKey } from "../../query/queryKey";
 import httpClient from "../../http/httpClient";
-import { SelfDto } from "../../type/User";
+import { SelfDto, UserDto } from "../../type/User";
 import useAuthenticatedQueryFn from "../auth/useAuthenticatedQueryFn";
 import useAccessToken from "../auth/useAccessToken";
 
 const useSelf = () => {
   const { accessToken } = useAccessToken();
-  const { data, isLoading, error } = useQuery<Readonly<SelfDto> | null>({
+  const { data, isLoading, error } = useQuery<Readonly<UserDto> | null>({
     queryKey: [QueryKey.USER_SELF],
     queryFn: useAuthenticatedQueryFn(() => httpClient.get("/api/user/self")),
     gcTime: 3600000,

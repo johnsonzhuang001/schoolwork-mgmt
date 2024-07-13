@@ -62,14 +62,7 @@ class UserService(
         if (self.mentor == null || self.peer == null) {
             throw ValidationException("User ${self.username} does not have a mentor or peer.")
         }
-        return listOf(self.mentor, self.peer, self).map {
-            UserDto(
-                username = it!!.username,
-                nickname = it.nickname,
-                role = it.role,
-                biography = it.biography,
-            )
-        }
+        return listOf(self.mentor, self.peer, self).map { UserDto(it!!) }
     }
 
     private fun createPeerAndMentor(user: User) {
@@ -80,7 +73,7 @@ class UserService(
             password = passwordEncoder.encode(generateRandomString(16)),
             nickname = UserConstants.USER_NAMES[Random.nextInt(0, UserConstants.USER_NAMES.size - 1)],
             role = UserRole.MENTOR,
-            biography = "I’m a senior mentor at CoolCode and I hope I can help you with your journey in programing.",
+            biography = "I’m a senior mentor at CoolCode and I hope I can help you with your journey in programi.",
             createdAt = now,
             updatedAt = now,
         ))

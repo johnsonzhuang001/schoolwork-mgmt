@@ -26,8 +26,12 @@ const toReadableRole = (role: UserRole) => {
 
 const UserCard = ({ user }: { user: UserDto }) => {
   const { self } = useSelf();
+  const navigate = useNavigate();
   return (
-    <div className="user-card relative rounded-[6px] bg-white  overflow-hidden">
+    <div
+      className="user-card relative rounded-[6px] bg-white  overflow-hidden cursor-pointer hover:shadow-card transition-shadow duration-300"
+      onClick={() => navigate(`/profile/${user.username}`)}
+    >
       <div className="absolute w-full top-0 h-[64px] bg-blue z-0" />
       <div className="relative h-full flex flex-col items-center gap-[10px] pt-[30px] pb-[20px] px-[10px] z-1">
         <div className="w-[60px] h-[60px] rounded-[30px] bg-whitegray" />
@@ -37,7 +41,7 @@ const UserCard = ({ user }: { user: UserDto }) => {
             {toReadableRole(user.role)}
           </Text>
         </div>
-        <Text size="sm" className="text-center grow">
+        <Text size="sm" className="text-center grow" wrap="prewrap">
           {user.biography || "This person has not left any word here..."}
         </Text>
         {self?.username !== user.username && (
