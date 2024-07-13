@@ -1,6 +1,7 @@
 package com.schoolwork.mgmt.server.service
 
 import com.schoolwork.mgmt.server.dto.assignment.*
+import com.schoolwork.mgmt.server.enum.AssignmentGrade
 import com.schoolwork.mgmt.server.error.NotFoundException
 import com.schoolwork.mgmt.server.error.UnauthorizedException
 import com.schoolwork.mgmt.server.error.ValidationException
@@ -62,6 +63,7 @@ class AssignmentService(
         val questions = questionRepository.findAllByAssignment(assignment)
         val finishCount = studentQuestionRepository.countByStudentIdAndQuestionIdIn(self.id!!, questions.map { it.id!! })
         val studentAssignment = studentAssignmentRepository.findByStudentIdAndAssignmentId(self.id, assignment.id!!)
+
         AssignmentDto(
             id = assignment.id,
             title = assignment.title,
@@ -70,6 +72,7 @@ class AssignmentService(
             questionCount = questions.size,
             finishCount = finishCount,
             submitted = studentAssignment != null,
+            grade = studentAssignment?.score?.let { getGrade(it) },
             score = studentAssignment?.score,
         )
     }
@@ -144,7 +147,6 @@ class AssignmentService(
         logger.info("Successfully uploaded score for ${student.username} of assignment ${request.assignmentId}")
     }
 
-    // TODO: A schedule to call this function every 5 minutes
     fun mentorTryingToCorrectScore() {
         val studentAssignments = studentAssignmentRepository.findAll().toList()
         studentAssignments.forEach { studentAssignment ->
@@ -215,18 +217,37 @@ class AssignmentService(
 
     private fun getScore(student: User, assignment: Assignment): BigDecimal {
         val questions = questionRepository.findAllByAssignment(assignment)
-        val studentQuestionsById = studentQuestionRepository
+        val studentQuestionsByQuestionId = studentQuestionRepository
             .findAllByStudentIdAndQuestionIdIn(student.id!!, questions.map { it.id!! })
-            .associateBy { it.id!! }
+            .associateBy { it.questionId }
         var correctCount = 0
         questions.forEach { question ->
-            if (studentQuestionsById.containsKey(question.id!!)) {
-                val studentQuestion = studentQuestionsById[question.id]!!
+            if (studentQuestionsByQuestionId.containsKey(question.id!!)) {
+                val studentQuestion = studentQuestionsByQuestionId[question.id]!!
                 if (studentQuestion.answer == question.answer) {
                     correctCount++
                 }
             }
         }
-        return BigDecimal(correctCount).divide(BigDecimal(questions.size)).setScale(2, RoundingMode.HALF_UP)
+        return BigDecimal(correctCount).divide(BigDecimal(questions.size), 2, RoundingMode.HALF_UP).multiply(BigDecimal(100)).setScale(2, RoundingMode.HALF_UP)
+    }
+
+    private fun getGrade(score: BigDecimal): AssignmentGrade {
+        if (score > BigDecimal(90)) {
+            return AssignmentGrade.A
+        }
+        if (score > BigDecimal(80)) {
+            return AssignmentGrade.B
+        }
+        if (score > BigDecimal(70)) {
+            return AssignmentGrade.C
+        }
+        if (score > BigDecimal(60)) {
+            return AssignmentGrade.D
+        }
+        if (score > BigDecimal(40)) {
+            return AssignmentGrade.E
+        }
+        return AssignmentGrade.F
     }
 }

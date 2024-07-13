@@ -1,10 +1,18 @@
 import React, { ReactNode } from "react";
 import Text from "./Text";
 import { AiOutlineLoading } from "react-icons/ai";
+import { TextColor } from "../type/Color";
 
 interface ButtonProps {
   type?: "fill" | "outline";
-  color?: "primary" | "secondary" | "blue" | "red" | "white" | "yellow";
+  color?:
+    | "primary"
+    | "secondary"
+    | "blue"
+    | "red"
+    | "white"
+    | "yellow"
+    | "green";
   size?: "lg" | "base" | "sm" | "xs";
   rounded?: boolean;
   text: string;
@@ -40,6 +48,8 @@ const Button: React.FC<ButtonProps> = ({
           return "bg-blue";
         case "red":
           return "bg-red";
+        case "green":
+          return "bg-green";
       }
     }
     return "";
@@ -60,12 +70,14 @@ const Button: React.FC<ButtonProps> = ({
           return "border-white";
         case "yellow":
           return "border-yellow";
+        case "green":
+          return "border-green";
       }
     }
     return "";
   };
 
-  const getTextType = () => {
+  const getTextType = (): TextColor => {
     if (type === "outline") {
       switch (color) {
         case "primary":
@@ -80,6 +92,8 @@ const Button: React.FC<ButtonProps> = ({
           return "white";
         case "yellow":
           return "warning";
+        case "green":
+          return "success";
       }
     }
     return "white";
