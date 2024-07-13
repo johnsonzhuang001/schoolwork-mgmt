@@ -2,9 +2,11 @@ package com.schoolwork.mgmt.server.service
 
 import com.schoolwork.mgmt.server.constant.UserConstants
 import com.schoolwork.mgmt.server.dto.SignupRequest
+import com.schoolwork.mgmt.server.dto.user.UserDto
 import com.schoolwork.mgmt.server.error.NotFoundException
 import com.schoolwork.mgmt.server.error.UnauthorizedException
 import com.schoolwork.mgmt.server.error.UserNotInSessionException
+import com.schoolwork.mgmt.server.error.ValidationException
 import com.schoolwork.mgmt.server.model.User
 import com.schoolwork.mgmt.server.repository.UserRepository
 import com.schoolwork.mgmt.server.security.UserRole
@@ -56,6 +58,20 @@ class UserService(
         return user
     }
 
+    fun getGroup(self: User): List<UserDto> {
+        if (self.mentor == null || self.peer == null) {
+            throw ValidationException("User ${self.username} does not have a mentor or peer.")
+        }
+        return listOf(self.mentor, self.peer, self).map {
+            UserDto(
+                username = it!!.username,
+                nickname = it.nickname,
+                role = it.role,
+                biography = it.biography,
+            )
+        }
+    }
+
     private fun createPeerAndMentor(user: User) {
         logger.info("Creating peer and mentor for ${user.username}")
         val now = LocalDateTime.now()
@@ -64,6 +80,7 @@ class UserService(
             password = passwordEncoder.encode(generateRandomString(16)),
             nickname = UserConstants.USER_NAMES[Random.nextInt(0, UserConstants.USER_NAMES.size - 1)],
             role = UserRole.MENTOR,
+            biography = "I’m a senior mentor at CoolCode and I hope I can help you with your journey in programing.",
             createdAt = now,
             updatedAt = now,
         ))
@@ -75,6 +92,7 @@ class UserService(
             role = UserRole.STUDENT,
             peer = user,
             mentor = mentor,
+            biography = "I'm really interested in coding but I just can't study well...",
             createdAt = now,
             updatedAt = now,
         ))

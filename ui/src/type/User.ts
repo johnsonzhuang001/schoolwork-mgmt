@@ -8,17 +8,15 @@ export interface SelfDto {
   role: string;
 }
 
-export interface UserDto {
-  id: number;
-  username: string;
-  nickname: string | null;
-  avatar: string | null;
-  biography: string | null;
-  followed: boolean;
+export enum UserRole {
+  ADMIN = "ADMIN",
+  MENTOR = "MENTOR",
+  STUDENT = "STUDENT",
 }
 
-export interface UserProfileDto {
-  user: UserDto;
-  followerCount: number;
-  followingCount: number;
+export interface UserDto {
+  username: string;
+  nickname: string;
+  role: UserRole;
+  biography: string | null;
 }
