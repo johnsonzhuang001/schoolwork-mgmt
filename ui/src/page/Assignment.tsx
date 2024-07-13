@@ -2,7 +2,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import useAssignment from "../hook/assignment/useAssignment";
 import MainBox from "../component/MainBox";
 import React, { useEffect, useState } from "react";
-import { IoArrowBackOutline } from "react-icons/io5";
 import Text from "../component/Text";
 import Button from "../component/Button";
 import Loading from "../component/Loading";
@@ -111,7 +110,6 @@ const QuesitonCard = ({
 
 const Assignment = () => {
   const { assignmentId: assignmentIdStr } = useParams();
-  const navigate = useNavigate();
   const assignmentId = assignmentIdStr ? Number.parseInt(assignmentIdStr) : 0;
   const { assignment, isLoading } = useAssignment(assignmentId);
   const [answers, setAnswers] = useState<Array<QuestionAnswer | null>>([]);

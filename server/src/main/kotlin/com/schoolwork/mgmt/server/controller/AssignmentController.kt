@@ -19,6 +19,11 @@ class AssignmentController(
     @GetMapping("/all")
     fun getAll() = ResponseEntity(assignmentService.getAllAssignments(userService.requireUserInSession()), HttpStatus.OK)
 
+    @GetMapping("/all/{username}")
+    fun getAllByUsername(@PathVariable("username") username: String) = ResponseEntity(
+        assignmentService.getAllAssignments(userService.requireUserInSession(), username), HttpStatus.OK
+    )
+
     @GetMapping("/details/{id}")
     fun getAssignment(@PathVariable("id") id: Long) =
         ResponseEntity(assignmentService.getAssignment(userService.requireUserInSession(), id), HttpStatus.OK)

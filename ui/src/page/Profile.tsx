@@ -1,4 +1,3 @@
-import useSelf from "../hook/user/useSelf";
 import MainBox from "../component/MainBox";
 import Avatar from "../component/Avatar";
 import React, { useState } from "react";
@@ -9,11 +8,70 @@ import Back from "../component/Back";
 import useSignOut from "../hook/auth/useSignOut";
 import { useNavigate } from "react-router-dom";
 import { UserDto } from "../type/User";
+import useAssignments from "../hook/assignment/useAssignments";
+import LoadingWithText from "../component/LoadingWithText";
+import AssignmentCard from "../component/AssignmentCard";
+import useStudyGroup from "../hook/user/useStudyGroup";
+import UserCard from "../component/UserCard";
 
 interface ProfileProps {
   user: UserDto;
   readonly: boolean;
 }
+
+const Students = () => {
+  const { studyGroup, isLoading } = useStudyGroup();
+  return (
+    <div className="w-full flex flex-col p-[10px] gap-[10px] bg-white rounded-[6px]">
+      <div>
+        <Text>Mentees</Text>
+      </div>
+      {isLoading && (
+        <div>
+          <LoadingWithText text="Loading assignments..." />
+        </div>
+      )}
+      {!isLoading && (
+        <div className="grid lg:grid-cols-4 md:grid-cols-3 grid-cols-2 gap-[10px]">
+          {studyGroup
+            .filter((user) => user.role === "STUDENT")
+            .map((user) => {
+              return <UserCard key={user.username} user={user} />;
+            })}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const Assignments = ({ user }: { user: UserDto }) => {
+  const { assignments, isLoading } = useAssignments(user.username);
+  return (
+    <div className="w-full flex flex-col p-[10px] gap-[10px] bg-white rounded-[6px]">
+      <div>
+        <Text>Assignments</Text>
+      </div>
+      {isLoading && (
+        <div>
+          <LoadingWithText text="Loading assignments..." />
+        </div>
+      )}
+      {!isLoading && (
+        <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-[10px]">
+          {assignments.map((assignment) => {
+            return (
+              <AssignmentCard
+                clickable={false}
+                key={assignment.id}
+                assignment={assignment}
+              />
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const Profile: React.FC<ProfileProps> = ({ user, readonly }) => {
   const [editingProfile, setEditingProfile] = useState(false);
@@ -75,7 +133,7 @@ const Profile: React.FC<ProfileProps> = ({ user, readonly }) => {
     );
   };
   return (
-    <MainBox className="flex gap-[10px]">
+    <MainBox className="flex sm:flex-row flex-col gap-[10px]">
       <div className="profile sm:w-[300px] w-full p-[15px] rounded-[6px] bg-white flex flex-col items-center gap-[10px]">
         <div className="w-full">
           <Back />
@@ -130,7 +188,10 @@ const Profile: React.FC<ProfileProps> = ({ user, readonly }) => {
         </div>
         {profileButtons()}
       </div>
-      <div className="dashboard grow p-[15px] rounded-[6px] bg-white"></div>
+      <div className="dashboard grow p-[15px] rounded-[6px] bg-white">
+        {user.role === "MENTOR" && <Students />}
+        {user.role === "STUDENT" && <Assignments user={user} />}
+      </div>
     </MainBox>
   );
 };
