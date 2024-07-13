@@ -1,10 +1,62 @@
 import Text from "../component/Text";
 import MainBox from "../component/MainBox";
 import useAssignments from "../hook/assignment/useAssignments";
-import Loading from "../component/Loading";
 import { AssignmentDto } from "../type/Assignment";
 import { DateTime } from "luxon";
 import { useNavigate } from "react-router-dom";
+import useStudyGroup from "../hook/user/useStudyGroup";
+import LoadingWithText from "../component/LoadingWithText";
+import { UserDto, UserRole } from "../type/User";
+import { AiOutlineMessage } from "react-icons/ai";
+import { MdOutlineEmail } from "react-icons/md";
+import useSelf from "../hook/user/useSelf";
+import { Tooltip } from "@mui/material";
+
+const toReadableRole = (role: UserRole) => {
+  switch (role) {
+    case UserRole.MENTOR:
+      return "Senior Mentor";
+    case UserRole.STUDENT:
+      return "Student";
+    case UserRole.ADMIN:
+      return "Admin";
+  }
+};
+
+const UserCard = ({ user }: { user: UserDto }) => {
+  const { self } = useSelf();
+  return (
+    <div className="user-card relative rounded-[6px] bg-white  overflow-hidden">
+      <div className="absolute w-full top-0 h-[64px] bg-blue z-0" />
+      <div className="relative h-full flex flex-col items-center gap-[10px] pt-[30px] pb-[20px] px-[10px] z-1">
+        <div className="w-[60px] h-[60px] rounded-[30px] bg-whitegray" />
+        <div className="flex flex-col items-center">
+          <Text>{user.nickname}</Text>
+          <Text type="secondary" size="xs">
+            {toReadableRole(user.role)}
+          </Text>
+        </div>
+        <Text size="sm" className="text-center grow">
+          {user.biography || "This person has not left any word here..."}
+        </Text>
+        {self?.username !== user.username && (
+          <div className="flex gap-[10px] items-center bottom-0">
+            <Tooltip title="Not implemented yet">
+              <div className="cursor-pointer text-secondary hover:opacity-70 transition-opacity duration-300">
+                <AiOutlineMessage size="18px" />
+              </div>
+            </Tooltip>
+            <Tooltip title="Not implemented yet">
+              <div className="cursor-pointer text-secondary hover:opacity-70 transition-opacity duration-300">
+                <MdOutlineEmail size="20px" fontWeight={0} />
+              </div>
+            </Tooltip>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const AssignmentCard = ({ assignment }: { assignment: AssignmentDto }) => {
   const navigate = useNavigate();
@@ -68,16 +120,38 @@ const AssignmentCard = ({ assignment }: { assignment: AssignmentDto }) => {
 };
 
 const Home = () => {
-  const { assignments, isLoading } = useAssignments();
+  const { assignments, isLoading: loadingAssignments } = useAssignments();
+  const { studyGroup, isLoading: loadingStudyGroup } = useStudyGroup();
   return (
-    <MainBox>
+    <MainBox className="flex flex-col gap-[15px]">
+      <div className="w-full flex flex-col gap-[10px]">
+        <div>
+          <Text>Study Group</Text>
+        </div>
+        {loadingStudyGroup && (
+          <div>
+            <LoadingWithText text="Loading your study group..." />
+          </div>
+        )}
+        {!loadingAssignments && (
+          <div className="grid lg:grid-cols-5 md:grid-cols-4 sm:grid-cols-3 grid-cols-2 gap-[10px]">
+            {studyGroup.map((user) => (
+              <UserCard key={user.username} user={user} />
+            ))}
+          </div>
+        )}
+      </div>
       <div className="w-full flex flex-col p-[10px] gap-[10px] bg-white rounded-[6px]">
         <div>
           <Text>Assignments</Text>
         </div>
-        {isLoading && <Loading />}
-        {!isLoading && (
-          <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1">
+        {loadingAssignments && (
+          <div>
+            <LoadingWithText text="Loading assignments..." />
+          </div>
+        )}
+        {!loadingAssignments && (
+          <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-[10px]">
             {assignments.map((assignment) => {
               return (
                 <AssignmentCard key={assignment.id} assignment={assignment} />

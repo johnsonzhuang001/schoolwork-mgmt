@@ -4,6 +4,7 @@ create table users (
    username nvarchar(128) not null,
    password nvarchar(128) not null,
    nickname nvarchar(128),
+   biography nvarchar(512),
    role nvarchar(32) not null,
    mentor_id bigint,
    peer_id bigint,

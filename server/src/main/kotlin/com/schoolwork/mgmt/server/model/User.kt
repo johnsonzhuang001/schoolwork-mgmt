@@ -22,6 +22,7 @@ class User(
     @OneToOne
     @JoinColumn(name = "peer_id", nullable = true)
     var peer: User? = null,
+    var biography: String? = null,
     var createdAt: LocalDateTime,
     var updatedAt: LocalDateTime,
     var deletedAt: LocalDateTime? = null
