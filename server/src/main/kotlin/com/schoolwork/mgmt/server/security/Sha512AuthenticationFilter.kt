@@ -1,6 +1,7 @@
 package com.schoolwork.mgmt.server.security
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.schoolwork.mgmt.server.utils.AuthUtils
 import com.schoolwork.mgmt.server.utils.JwtUtils
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
@@ -14,9 +15,9 @@ import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 
 
-//@Component
-class JwtAuthorizationFilter(
-    private val jwtUtils: JwtUtils,
+@Component
+class Sha512AuthenticationFilter(
+    private val authUtils: AuthUtils,
     private val objectMapper: ObjectMapper,
     private val userDetailsService: UserDetailsService,
 ): OncePerRequestFilter() {
@@ -26,8 +27,10 @@ class JwtAuthorizationFilter(
         filterChain: FilterChain
     ) {
         try {
-            val accessToken = jwtUtils.resolveToken(request) ?: return filterChain.doFilter(request, response)
-            val username = jwtUtils.extractUsername(accessToken)
+            val accessToken = authUtils.resolveToken(request) ?: return filterChain.doFilter(request, response)
+            val authToken = authUtils.base64Decode(accessToken)
+            authUtils.validateAuthToken(authToken)
+            val username = authToken.username
             val user = userDetailsService.loadUserByUsername(username)
             val authentication = UsernamePasswordAuthenticationToken(user.username, user.password, user.authorities)
             SecurityContextHolder.getContext().authentication = authentication

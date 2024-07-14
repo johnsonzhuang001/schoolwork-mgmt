@@ -6,7 +6,6 @@ import com.schoolwork.mgmt.server.dto.user.ProfileUpdateRequest
 import com.schoolwork.mgmt.server.dto.user.UserDto
 import com.schoolwork.mgmt.server.error.NotFoundException
 import com.schoolwork.mgmt.server.error.UnauthorizedException
-import com.schoolwork.mgmt.server.error.UserNotInSessionException
 import com.schoolwork.mgmt.server.error.ValidationException
 import com.schoolwork.mgmt.server.model.User
 import com.schoolwork.mgmt.server.repository.UserRepository
@@ -39,7 +38,7 @@ class UserService(
     }
 
     fun requireUserInSession(): User {
-        val user = getUserInSession() ?: throw UserNotInSessionException()
+        val user = getUserInSession() ?: throw UnauthorizedException()
         return user
     }
 

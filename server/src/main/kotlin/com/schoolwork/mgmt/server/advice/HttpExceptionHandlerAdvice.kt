@@ -28,6 +28,12 @@ class HttpExceptionHandlerAdvice {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorDto(HttpStatus.FORBIDDEN.value(), e.message ?: "Unauthorized"))
     }
 
+    @ExceptionHandler(UnauthenticatedException::class)
+    fun handleUnauthorizedException(e: UnauthenticatedException): ResponseEntity<ErrorDto> {
+        logger.error(e.message)
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ErrorDto(HttpStatus.UNAUTHORIZED.value(), e.message ?: "Unauthenticated"))
+    }
+
     @ExceptionHandler(ValidationException::class)
     fun handleNotFoundException(e: ValidationException): ResponseEntity<ErrorDto> {
         logger.error(e.message)
@@ -38,12 +44,6 @@ class HttpExceptionHandlerAdvice {
     fun handleNotFoundException(e: NotFoundException): ResponseEntity<ErrorDto> {
         logger.error(e.message)
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorDto(HttpStatus.NOT_FOUND.value(), e.message ?: "Not Found"))
-    }
-
-    @ExceptionHandler(UserNotInSessionException::class)
-    fun handleUserNotInSessionException(e: UserNotInSessionException): ResponseEntity<ErrorDto> {
-        logger.error(e.message)
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ErrorDto(HttpStatus.UNAUTHORIZED.value(), e.message ?: "User not found in session"))
     }
 
     @ExceptionHandler(Throwable::class)

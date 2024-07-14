@@ -24,7 +24,8 @@ import java.util.*
 @EnableMethodSecurity(prePostEnabled = true)
 class WebSecurityConfig(
     private val userDetailsService: UserDetailsService,
-    private val jwtAuthorizationFilter: JwtAuthorizationFilter,
+//    private val jwtAuthorizationFilter: JwtAuthorizationFilter,
+    private val sha512AuthenticationFilter: Sha512AuthenticationFilter
 ) {
 
     @Bean
@@ -62,7 +63,7 @@ class WebSecurityConfig(
             .sessionManagement { session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             }
-            .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter::class.java)
+            .addFilterBefore(sha512AuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
         return http.build()
     }
 
