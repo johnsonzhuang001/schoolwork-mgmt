@@ -1,6 +1,7 @@
 package com.schoolwork.mgmt.server.controller
 
 import com.schoolwork.mgmt.server.dto.JwtRequest
+import com.schoolwork.mgmt.server.dto.OkDto
 import com.schoolwork.mgmt.server.dto.SignInRequest
 import com.schoolwork.mgmt.server.dto.SignupRequest
 import com.schoolwork.mgmt.server.error.HttpException
@@ -81,14 +82,14 @@ class AuthController(
     }
 
     @PostMapping("/signin")
-    fun signin(@RequestBody request: SignInRequest): ResponseEntity<String> {
+    fun signin(@RequestBody request: SignInRequest): ResponseEntity<OkDto> {
         try {
             logger.info("Received sign in request for ${request.username}")
             val authentication = authenticationManager.authenticate(UsernamePasswordAuthenticationToken(request.username, request.password))
             userService.getUserByUsername(authentication.name) ?: throw HttpException(HttpStatus.UNAUTHORIZED, "Username or password is incorrect")
-            val jwt = jwtUtils.generateToken(authentication.name)
+//            val jwt = jwtUtils.generateToken(authentication.name)
             logger.info("Signed in successfully for ${request.username}")
-            return ResponseEntity(jwt, HttpStatus.OK)
+            return ResponseEntity(OkDto(), HttpStatus.OK)
         } catch (e: AuthenticationException) {
             throw HttpException(HttpStatus.UNAUTHORIZED, "Username or password is incorrect")
         } catch (e: Exception) {
