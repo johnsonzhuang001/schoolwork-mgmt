@@ -14,6 +14,7 @@ import AssignmentCard from "../component/AssignmentCard";
 import useStudyGroup from "../hook/user/useStudyGroup";
 import UserCard from "../component/UserCard";
 import useUpdateProfile from "../hook/user/useUpdateProfile";
+import ChangePasswordModal from "./profile/ChangePasswordModal";
 
 interface ProfileProps {
   user: UserDto;
@@ -112,6 +113,7 @@ const Profile: React.FC<ProfileProps> = ({ user, readonly }) => {
                 setEditingProfile(true);
               }}
             />
+            <ChangePasswordModal />
           </>
         )}
         {!readonly && editingProfile && (

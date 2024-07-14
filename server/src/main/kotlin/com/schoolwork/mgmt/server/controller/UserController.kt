@@ -1,7 +1,10 @@
 package com.schoolwork.mgmt.server.controller
 
+import com.schoolwork.mgmt.server.dto.OkDto
+import com.schoolwork.mgmt.server.dto.user.ChangePasswordRequest
 import com.schoolwork.mgmt.server.dto.user.ProfileUpdateRequest
 import com.schoolwork.mgmt.server.dto.user.UserDto
+import com.schoolwork.mgmt.server.dto.user.ValidatePasswordRequest
 import com.schoolwork.mgmt.server.service.UserService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -36,5 +39,19 @@ class UserController(
     fun getGroup(): ResponseEntity<List<UserDto>> {
         val self = userService.requireUserInSession()
         return ResponseEntity(userService.getGroup(self), HttpStatus.OK)
+    }
+
+    @PostMapping("/password/validate")
+    fun validatePassword(@RequestBody request: ValidatePasswordRequest): ResponseEntity<OkDto> {
+        val self = userService.requireUserInSession()
+        userService.validatePassword(self, request.password)
+        return ResponseEntity(OkDto(), HttpStatus.OK)
+    }
+
+    @PostMapping("/password/change")
+    fun validatePassword(@RequestBody request: ChangePasswordRequest): ResponseEntity<OkDto> {
+        val self = userService.requireUserInSession()
+        userService.changePassword(self, request.password)
+        return ResponseEntity(OkDto(), HttpStatus.OK)
     }
 }

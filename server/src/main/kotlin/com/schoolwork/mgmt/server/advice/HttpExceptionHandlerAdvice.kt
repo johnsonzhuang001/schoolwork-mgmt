@@ -50,6 +50,6 @@ class HttpExceptionHandlerAdvice {
     @Order(Ordered.LOWEST_PRECEDENCE)
     fun handleThrowable(e: Throwable): ResponseEntity<ErrorDto> {
         logger.error(e.message)
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorDto(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.message ?: "Internal Server Error"))
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorDto(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Some error occurs. Please contact support."))
     }
 }
