@@ -43,4 +43,14 @@ class AuthUtils(
             throw UnauthorizedException("Invalid username or password")
         }
     }
+
+    fun generateToken(username: String): String {
+        val md = MessageDigest.getInstance("SHA-256")
+        val hash = md.digest(username.toByteArray())
+            .joinToString("") { "%02x".format(it and 0xFF.toByte()) }
+        return String(Base64.getEncoder().encode(objectMapper.writeValueAsBytes(AuthToken(
+            username = username,
+            hash = hash
+        ))))
+    }
 }
