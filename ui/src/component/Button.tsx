@@ -16,7 +16,7 @@ interface ButtonProps {
   size?: "lg" | "base" | "sm" | "xs";
   rounded?: boolean;
   text: string;
-  onClick: () => void;
+  onClick?: () => void;
   disabled?: boolean;
   fullWidth?: boolean;
   className?: string;
@@ -127,7 +127,7 @@ const Button: React.FC<ButtonProps> = ({
       className={buttonClassName}
       onClick={() => {
         if (!disabled && !loading) {
-          onClick();
+          onClick?.();
         }
       }}
     >

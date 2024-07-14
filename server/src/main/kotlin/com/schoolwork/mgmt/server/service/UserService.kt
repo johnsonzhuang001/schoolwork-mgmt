@@ -12,6 +12,9 @@ import com.schoolwork.mgmt.server.model.User
 import com.schoolwork.mgmt.server.repository.UserRepository
 import com.schoolwork.mgmt.server.security.UserRole
 import org.apache.logging.log4j.LogManager
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -20,6 +23,7 @@ import kotlin.random.Random
 
 @Service
 class UserService(
+    private val authenticationManager: AuthenticationManager,
     private val userRepository: UserRepository,
     private val passwordEncoder: PasswordEncoder,
 ) {
@@ -84,6 +88,21 @@ class UserService(
         return userRepository.save(existingUser)
     }
 
+    fun validatePassword(self: User, password: String) {
+        try {
+            authenticationManager.authenticate(UsernamePasswordAuthenticationToken(self.username, password))
+        } catch (e: AuthenticationException) {
+            throw UnauthorizedException("Password does not match.")
+        }
+    }
+
+    fun changePassword(self: User, newPassword: String) {
+        validatePasswordFormat(newPassword)
+        userRepository.save(self.also {
+            it.password = passwordEncoder.encode(newPassword)
+        })
+    }
+
     private fun createPeerAndMentor(user: User) {
         logger.info("Creating peer and mentor for ${user.username}")
         val now = LocalDateTime.now()
@@ -92,7 +111,7 @@ class UserService(
             password = passwordEncoder.encode(generateRandomString(16)),
             nickname = UserConstants.USER_NAMES[Random.nextInt(0, UserConstants.USER_NAMES.size - 1)],
             role = UserRole.MENTOR,
-            biography = "I’m a senior mentor at CoolCode and I hope I can help you with your journey in programi.",
+            biography = "I’m a senior mentor at CoolCode and I hope I can help you with your journey in programing.",
             createdAt = now,
             updatedAt = now,
         ))
@@ -123,8 +142,9 @@ class UserService(
 
     private fun validate(request: SignupRequest) {
         if (userRepository.findByUsername(request.username) != null) {
-            throw IllegalArgumentException("User already exists for ${request.username}")
+            throw ValidationException("User already exists for ${request.username}")
         }
+        validatePasswordFormat(request.password)
     }
 
     private fun getExistingUserAndValidateOwnership(user: User, username: String): User {
@@ -132,5 +152,12 @@ class UserService(
             throw UnauthorizedException()
         }
         return userRepository.findByUsername(username) ?: throw NotFoundException("User $username does not exist.")
+    }
+
+    private fun validatePasswordFormat(password: String) {
+        val regex = Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@.#$!%*?&^])[A-Za-z\\d@.#$!%*?&]{8,15}$")
+        if (!regex.matches(password)) {
+            throw ValidationException("Password should contain at least one lowercase and uppercase alphabet, one number, one special character @.#$!%*?&^, and with length between 8 and 15.")
+        }
     }
 }
