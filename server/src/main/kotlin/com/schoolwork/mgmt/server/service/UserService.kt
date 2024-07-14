@@ -7,8 +7,11 @@ import com.schoolwork.mgmt.server.dto.user.UserDto
 import com.schoolwork.mgmt.server.error.NotFoundException
 import com.schoolwork.mgmt.server.error.UnauthorizedException
 import com.schoolwork.mgmt.server.error.ValidationException
+import com.schoolwork.mgmt.server.model.Question
+import com.schoolwork.mgmt.server.model.StudentAssignment
+import com.schoolwork.mgmt.server.model.StudentQuestion
 import com.schoolwork.mgmt.server.model.User
-import com.schoolwork.mgmt.server.repository.UserRepository
+import com.schoolwork.mgmt.server.repository.*
 import com.schoolwork.mgmt.server.security.UserRole
 import org.apache.logging.log4j.LogManager
 import org.springframework.security.authentication.AuthenticationManager
@@ -25,6 +28,11 @@ class UserService(
     private val authenticationManager: AuthenticationManager,
     private val userRepository: UserRepository,
     private val passwordEncoder: PasswordEncoder,
+    private val assignmentRepository: AssignmentRepository,
+    private val questionRepository: QuestionRepository,
+    private val studentQuestionRepository: StudentQuestionRepository,
+    private val assignmentService: AssignmentService,
+    private val studentAssignmentRepository: StudentAssignmentRepository
 ) {
 
     companion object {
@@ -130,6 +138,28 @@ class UserService(
         user.mentor = mentor
         user.peer = peer
         userRepository.save(user)
+
+        // Give poor answer for peer so the auto evaluation will give low score
+        val assignments = assignmentRepository.findAll()
+        assignments.forEach { assignment ->
+            val questions = questionRepository.findAllByAssignment(assignment)
+            questions.forEach { question ->
+                studentQuestionRepository.save(StudentQuestion(
+                    questionId = question.id!!,
+                    studentId = peer.id!!,
+                    answer = Question.Answer.A,
+                    createdAt = now,
+                    updatedAt = now
+                ))
+            }
+            studentAssignmentRepository.save(StudentAssignment(
+                assignment = assignment,
+                student = peer,
+                createdAt = now,
+                updatedAt = now,
+            ))
+        }
+        assignmentService.mentorTryingToCorrectScore()
     }
 
     private fun generateRandomString(length: Int): String {

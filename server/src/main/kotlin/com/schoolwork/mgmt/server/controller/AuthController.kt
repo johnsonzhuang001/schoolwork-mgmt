@@ -6,6 +6,7 @@ import com.schoolwork.mgmt.server.dto.SignInRequest
 import com.schoolwork.mgmt.server.dto.SignupRequest
 import com.schoolwork.mgmt.server.error.HttpException
 import com.schoolwork.mgmt.server.service.UserService
+import com.schoolwork.mgmt.server.utils.AuthUtils
 import com.schoolwork.mgmt.server.utils.JwtUtils
 import org.apache.logging.log4j.LogManager
 import org.springframework.http.HttpStatus
@@ -22,7 +23,8 @@ import org.springframework.web.bind.annotation.*
 class AuthController(
     private val authenticationManager: AuthenticationManager,
     private val userService: UserService,
-    private val jwtUtils: JwtUtils
+    private val jwtUtils: JwtUtils,
+    private val authUtils: AuthUtils
 ) {
 
     companion object {
@@ -45,9 +47,9 @@ class AuthController(
         }
         try {
             val user = userService.signup(request)
-            val jwt = jwtUtils.generateToken(user.username)
+            val accessToken = authUtils.generateToken(user.username)
             logger.info("Signed up successfully for ${request.username}")
-            return ResponseEntity(jwt, HttpStatus.OK)
+            return ResponseEntity(accessToken, HttpStatus.OK)
         } catch (e: Exception) {
             logger.error("Failed to sign up: ${e.message}")
             throw HttpException(HttpStatus.BAD_REQUEST, e.message ?: "Failed to sign up. Please contact support")
@@ -87,7 +89,6 @@ class AuthController(
             logger.info("Received sign in request for ${request.username}")
             val authentication = authenticationManager.authenticate(UsernamePasswordAuthenticationToken(request.username, request.password))
             userService.getUserByUsername(authentication.name) ?: throw HttpException(HttpStatus.UNAUTHORIZED, "Username or password is incorrect")
-//            val jwt = jwtUtils.generateToken(authentication.name)
             logger.info("Signed in successfully for ${request.username}")
             return ResponseEntity(OkDto(), HttpStatus.OK)
         } catch (e: AuthenticationException) {
@@ -101,8 +102,8 @@ class AuthController(
     @GetMapping("/impersonate/{username}") // For testing only
     fun impersonate(@PathVariable username: String): ResponseEntity<String> {
         userService.getUserByUsername(username) ?: return ResponseEntity(HttpStatus.NOT_FOUND)
-        val jwt = jwtUtils.generateToken(username)
-        return ResponseEntity(jwt, HttpStatus.OK)
+        val accessToken = authUtils.generateToken(username)
+        return ResponseEntity(accessToken, HttpStatus.OK)
     }
 
     private fun hasLoggedIn(): Boolean {
