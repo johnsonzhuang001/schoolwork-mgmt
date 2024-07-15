@@ -8,6 +8,7 @@ create table users (
    role nvarchar(32) not null,
    mentor_id bigint,
    peer_id bigint,
+   is_challenger char(1) not null,
    created_at datetime2 not null,
    updated_at datetime2 not null,
    deleted_at datetime2 default NULL
@@ -59,3 +60,14 @@ create table student_assignment (
   updated_at datetime2 not null
 )
 alter table student_assignment add constraint student_assignment_pk PRIMARY KEY (id);
+
+create sequence challenge_progress_seq start with 1 increment by 1 no cache no cycle;
+create table challenge_progress (
+    id bigint not null DEFAULT (NEXT VALUE FOR challenge_progress_seq),
+    challenger_id bigint not null,
+    peer_score_overridden char(1) not null,
+    mentor_password_overridden char(1) not null,
+    created_at datetime2 not null,
+    updated_at datetime2 not null
+)
+alter table challenge_progress add constraint challenge_progress_pk PRIMARY KEY (id);

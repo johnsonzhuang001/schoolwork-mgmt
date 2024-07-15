@@ -1,5 +1,6 @@
 package com.schoolwork.mgmt.server.model
 
+import com.schoolwork.mgmt.server.enum.DbBoolean
 import com.schoolwork.mgmt.server.security.UserRole
 import jakarta.persistence.*
 import java.time.LocalDateTime
@@ -23,6 +24,8 @@ class User(
     @JoinColumn(name = "peer_id", nullable = true)
     var peer: User? = null,
     var biography: String,
+    @Enumerated(EnumType.STRING)
+    val isChallenger: DbBoolean,
     var createdAt: LocalDateTime,
     var updatedAt: LocalDateTime,
     var deletedAt: LocalDateTime? = null
@@ -33,7 +36,10 @@ class User(
         nickname = "",
         biography = "",
         role = UserRole.STUDENT,
+        isChallenger = DbBoolean.N,
         createdAt = LocalDateTime.now(),
         updatedAt = LocalDateTime.now(),
     )
+
+    fun isChallenger() = isChallenger == DbBoolean.Y
 }
