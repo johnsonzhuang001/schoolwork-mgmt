@@ -4,13 +4,11 @@ import com.schoolwork.mgmt.server.constant.UserConstants
 import com.schoolwork.mgmt.server.dto.SignupRequest
 import com.schoolwork.mgmt.server.dto.user.ProfileUpdateRequest
 import com.schoolwork.mgmt.server.dto.user.UserDto
+import com.schoolwork.mgmt.server.enum.DbBoolean
 import com.schoolwork.mgmt.server.error.NotFoundException
 import com.schoolwork.mgmt.server.error.UnauthorizedException
 import com.schoolwork.mgmt.server.error.ValidationException
-import com.schoolwork.mgmt.server.model.Question
-import com.schoolwork.mgmt.server.model.StudentAssignment
-import com.schoolwork.mgmt.server.model.StudentQuestion
-import com.schoolwork.mgmt.server.model.User
+import com.schoolwork.mgmt.server.model.*
 import com.schoolwork.mgmt.server.repository.*
 import com.schoolwork.mgmt.server.security.UserRole
 import org.apache.logging.log4j.LogManager
@@ -32,7 +30,8 @@ class UserService(
     private val questionRepository: QuestionRepository,
     private val studentQuestionRepository: StudentQuestionRepository,
     private val assignmentService: AssignmentService,
-    private val studentAssignmentRepository: StudentAssignmentRepository
+    private val studentAssignmentRepository: StudentAssignmentRepository,
+    private val challengeProgressRepository: ChallengeProgressRepository,
 ) {
 
     companion object {
@@ -72,11 +71,13 @@ class UserService(
             nickname = request.nickname,
             role = UserRole.STUDENT,
             biography = "",
+            isChallenger = DbBoolean.Y,
             createdAt = now,
             updatedAt = now,
         ))
         logger.info("User created for ${request.username}")
         createPeerAndMentor(user)
+        initializeChallengeProgress(user)
         return user
     }
 
@@ -110,6 +111,17 @@ class UserService(
         })
     }
 
+    private fun initializeChallengeProgress(challenger: User) {
+        val now = LocalDateTime.now()
+        challengeProgressRepository.save(ChallengeProgress(
+            challenger = challenger,
+            peerScoreOverridden = DbBoolean.N,
+            mentorPasswordOverridden = DbBoolean.N,
+            createdAt = now,
+            updatedAt = now,
+        ))
+    }
+
     private fun createPeerAndMentor(user: User) {
         logger.info("Creating peer and mentor for ${user.username}")
         val now = LocalDateTime.now()
@@ -119,6 +131,7 @@ class UserService(
             nickname = UserConstants.USER_NAMES[Random.nextInt(0, UserConstants.USER_NAMES.size - 1)],
             role = UserRole.MENTOR,
             biography = "I’m a senior mentor at CoolCode and I hope I can help you with your journey in programing.",
+            isChallenger = DbBoolean.N,
             createdAt = now,
             updatedAt = now,
         ))
@@ -131,6 +144,7 @@ class UserService(
             peer = user,
             mentor = mentor,
             biography = "I'm really interested in coding but I just can't study well...",
+            isChallenger = DbBoolean.N,
             createdAt = now,
             updatedAt = now,
         ))

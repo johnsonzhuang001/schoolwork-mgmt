@@ -87,8 +87,7 @@ class AuthController(
     fun signin(@RequestBody request: SignInRequest): ResponseEntity<OkDto> {
         try {
             logger.info("Received sign in request for ${request.username}")
-            val authentication = authenticationManager.authenticate(UsernamePasswordAuthenticationToken(request.username, request.password))
-            userService.getUserByUsername(authentication.name) ?: throw HttpException(HttpStatus.UNAUTHORIZED, "Username or password is incorrect")
+            authenticationManager.authenticate(UsernamePasswordAuthenticationToken(request.username, request.password))
             logger.info("Signed in successfully for ${request.username}")
             return ResponseEntity(OkDto(), HttpStatus.OK)
         } catch (e: AuthenticationException) {

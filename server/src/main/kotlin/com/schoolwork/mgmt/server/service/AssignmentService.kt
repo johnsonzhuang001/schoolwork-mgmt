@@ -2,11 +2,13 @@ package com.schoolwork.mgmt.server.service
 
 import com.schoolwork.mgmt.server.dto.assignment.*
 import com.schoolwork.mgmt.server.enum.AssignmentGrade
+import com.schoolwork.mgmt.server.enum.DbBoolean
 import com.schoolwork.mgmt.server.error.NotFoundException
 import com.schoolwork.mgmt.server.error.UnauthorizedException
 import com.schoolwork.mgmt.server.error.ValidationException
 import com.schoolwork.mgmt.server.model.*
 import com.schoolwork.mgmt.server.repository.*
+import com.schoolwork.mgmt.server.security.UserRole
 import org.apache.logging.log4j.LogManager
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -22,6 +24,7 @@ class AssignmentService(
     private val studentQuestionRepository: StudentQuestionRepository,
     private val studentAssignmentRepository: StudentAssignmentRepository,
     private val userRepository: UserRepository,
+    private val challengeProgressRepository: ChallengeProgressRepository,
 ) {
     companion object {
         private val logger = LogManager.getLogger()
@@ -133,21 +136,40 @@ class AssignmentService(
 
     // The function for challengers to call to override score
     fun uploadScore(self: User, request: UploadScoreRequest) {
-        val student = userRepository.findByUsername(request.username)
+        if (self.role !== UserRole.MENTOR) throw UnauthorizedException("User ${self.username} is not a mentor.")
+        if (request.score > BigDecimal(100) || request.score < BigDecimal(0)) {
+            throw ValidationException("Score should be between 0 and 100.")
+        }
+
+        // Validate mentor-student
+        val student = userRepository.findByUsernameAndRole(request.username, UserRole.STUDENT)
             ?: throw NotFoundException("Student with username ${request.username} not found.")
         logger.info("Uploading score for ${student.username} of assignment ${request.assignmentId}")
         if (student.mentor?.id != self.id) {
             throw UnauthorizedException("User ${self.username} is not student ${student.username}'s mentor.")
         }
+
+        // Override score
         val assignment = assignmentRepository.findByIdOrNull(request.assignmentId)
             ?: throw NotFoundException("Assignment ${request.assignmentId} not found.")
-
-        val existingStudentAssignment = studentAssignmentRepository.findByStudentIdAndAssignmentId(student.id!!, assignment.id!!)
-            ?: throw NotFoundException("Student ${student.username} hasn't submitted the assignment ${assignment.id}")
         val now = LocalDateTime.now()
-        existingStudentAssignment.score = request.score
-        existingStudentAssignment.updatedAt = now
-        studentAssignmentRepository.save(existingStudentAssignment)
+        studentAssignmentRepository.findByStudentIdAndAssignmentId(student.id!!, assignment.id!!)?.also {
+            it.score = request.score
+            it.updatedAt = now
+            studentAssignmentRepository.save(it)
+        } ?: run { throw NotFoundException("Student ${student.username} hasn't submitted the assignment ${assignment.id}") }
+
+        // Update progress only if overriding peer's score
+        if (!student.isChallenger()) {
+            val challenger = userRepository.findByMentorAndIsChallenger(self, DbBoolean.Y)
+                ?: throw NotFoundException("There is no challenger under mentor ${self.username}.")
+            challengeProgressRepository.findByChallenger(challenger)?.also {
+                it.peerScoreOverridden = DbBoolean.Y
+                it.updatedAt = now
+                challengeProgressRepository.save(it)
+            } ?: run { throw NotFoundException("Challenge progress is not initiated for ${challenger.username}.") }
+        }
+
         logger.info("Successfully uploaded score for ${student.username} of assignment ${request.assignmentId}")
     }
 
