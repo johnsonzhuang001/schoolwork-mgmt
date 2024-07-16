@@ -106,9 +106,22 @@ class UserService(
 
     fun changePassword(self: User, newPassword: String) {
         validatePasswordFormat(newPassword)
+        val now = LocalDateTime.now()
         userRepository.save(self.also {
             it.password = passwordEncoder.encode(newPassword)
+            it.updatedAt = now
         })
+        if (self.role == UserRole.MENTOR) {
+            userRepository.findByMentorAndIsChallenger(self, DbBoolean.Y)?.also { challenger ->
+                val progress = challengeProgressRepository.findByChallenger(challenger)
+                    ?: throw NotFoundException("Challenge progress is not initiated for ${challenger.username}.")
+                progress.mentorPasswordOverridden = DbBoolean.Y
+                progress.updatedAt = now
+                challengeProgressRepository.save(progress)
+            } ?: run {
+                throw NotFoundException("There is no challenger under mentor ${self.username}.")
+            }
+        }
     }
 
     private fun initializeChallengeProgress(challenger: User) {
