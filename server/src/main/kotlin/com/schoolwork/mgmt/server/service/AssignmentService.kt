@@ -173,16 +173,33 @@ class AssignmentService(
         logger.info("Successfully uploaded score for ${student.username} of assignment ${request.assignmentId}")
     }
 
+    // Better not to throw error during a scheduled job.
     fun mentorTryingToCorrectScore() {
-        val studentAssignments = studentAssignmentRepository.findAll().toList()
-        studentAssignments.forEach { studentAssignment ->
-            // TODO: Check if student's mentor's password has been overridden. If it is overridden, fix the score
-            val mentor = studentAssignment.student.mentor
-            logger.info("Mentor ${mentor?.username} is trying to correct ${studentAssignment.student.username}'s score ${studentAssignment.score}")
-            val score = getScore(studentAssignment.student, studentAssignment.assignment)
-            studentAssignment.score = score
-            studentAssignmentRepository.save(studentAssignment)
-            logger.info("Mentor ${mentor?.username} successfully corrected ${studentAssignment.student.username}'s score ${studentAssignment.score}")
+        userRepository.findAllByRole(UserRole.MENTOR).forEach { mentor ->
+            val challenger = userRepository.findByMentorAndIsChallenger(mentor, DbBoolean.Y)
+                ?: run {
+                    logger.error("There is no challenger under mentor ${mentor.username}.")
+                    return@forEach
+                }
+            val progress = challengeProgressRepository.findByChallenger(challenger)
+                ?: run {
+                    logger.error("Challenge progress is not initiated for ${challenger.username}.")
+                    return@forEach
+                }
+            if (progress.mentorPasswordOverridden == DbBoolean.Y) {
+                logger.info("Mentor ${mentor.username}'s password has been overridden and is unable to correct the score.")
+                return@forEach
+            }
+
+            userRepository.findAllByMentor(mentor).forEach { student ->
+                studentAssignmentRepository.findAllByStudent(student).forEach { studentAssignment ->
+                    logger.info("Mentor ${mentor.username} is trying to correct ${studentAssignment.student.username}'s score ${studentAssignment.score} of assignment ${studentAssignment.assignment.id}.")
+                    val score = getScore(studentAssignment.student, studentAssignment.assignment)
+                    studentAssignment.score = score
+                    studentAssignmentRepository.save(studentAssignment)
+                    logger.info("Mentor ${mentor.username} successfully corrected ${studentAssignment.student.username}'s score ${studentAssignment.score} of assignment ${studentAssignment.assignment.id}.")
+                }
+            }
         }
     }
 

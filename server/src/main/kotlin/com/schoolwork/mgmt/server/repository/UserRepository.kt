@@ -11,4 +11,6 @@ interface UserRepository: CrudRepository<User, Long> {
     fun findByUsername(username: String): User?
     fun findByUsernameAndRole(username: String, role: UserRole): User?
     fun findByMentorAndIsChallenger(mentor: User, isChallenger: DbBoolean): User?
+    fun findAllByRole(role: UserRole): List<User>
+    fun findAllByMentor(mentor: User): List<User>
 }
