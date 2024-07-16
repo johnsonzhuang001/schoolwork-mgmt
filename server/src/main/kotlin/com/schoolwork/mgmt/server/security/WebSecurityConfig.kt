@@ -55,6 +55,7 @@ class WebSecurityConfig(
                     .requestMatchers(
                         "/ping",
                         "/api/auth/**",
+                        "/api/evaluation/username/**",
                     )
                     .permitAll()
                     .anyRequest()

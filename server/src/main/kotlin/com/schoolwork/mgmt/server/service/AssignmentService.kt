@@ -258,7 +258,7 @@ class AssignmentService(
         }
     }
 
-    private fun getScore(student: User, assignment: Assignment): BigDecimal {
+    fun getScore(student: User, assignment: Assignment): BigDecimal {
         val questions = questionRepository.findAllByAssignment(assignment)
         val studentQuestionsByQuestionId = studentQuestionRepository
             .findAllByStudentIdAndQuestionIdIn(student.id!!, questions.map { it.id!! })

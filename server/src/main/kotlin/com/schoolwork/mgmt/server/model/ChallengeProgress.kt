@@ -28,4 +28,7 @@ class ChallengeProgress(
         createdAt = LocalDateTime.now(),
         updatedAt = LocalDateTime.now(),
     )
+
+    fun isPeerScoreOverriden() = peerScoreOverridden == DbBoolean.Y
+    fun isMentorPasswordOverridden() = mentorPasswordOverridden == DbBoolean.Y
 }
