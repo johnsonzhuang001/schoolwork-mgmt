@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface UserRepository: CrudRepository<User, Long> {
+    fun findByDiscordUserId(discordUserId: Long): User?
     fun findByUsername(username: String): User?
     fun findByUsernameAndRole(username: String, role: UserRole): User?
     fun findByMentorAndIsChallenger(mentor: User, isChallenger: DbBoolean): User?

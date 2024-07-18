@@ -26,6 +26,7 @@ class User(
     var biography: String,
     @Enumerated(EnumType.STRING)
     val isChallenger: DbBoolean,
+    val discordUserId: Long? = null,
     var createdAt: LocalDateTime,
     var updatedAt: LocalDateTime,
     var deletedAt: LocalDateTime? = null
