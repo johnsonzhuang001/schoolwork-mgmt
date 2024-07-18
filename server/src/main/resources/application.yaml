@@ -5,3 +5,8 @@ spring:
     url: ${MSSQL_URL}
     username: ${MSSQL_USERNAME}
     password: ${MSSQL_PASSWORD}
+
+discord:
+  coolcodehacker:
+    token: ${DISCORD_COOLCODEHACKER_TOKEN}
+    channel: ${DISCORD_COOLCODEHACKER_CHANNEL_ID}

@@ -9,6 +9,7 @@ create table users (
    mentor_id bigint,
    peer_id bigint,
    is_challenger char(1) not null,
+   discord_user_id bigint,
    created_at datetime2 not null,
    updated_at datetime2 not null,
    deleted_at datetime2 default NULL

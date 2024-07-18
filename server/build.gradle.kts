@@ -28,6 +28,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("javax.xml.bind:jaxb-api:2.3.1")
 
+    implementation("com.discord4j:discord4j-core:3.2.6")
+
     implementation("io.jsonwebtoken:jjwt:0.2")
 
     runtimeOnly("com.microsoft.sqlserver:mssql-jdbc")

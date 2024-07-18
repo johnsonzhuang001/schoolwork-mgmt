@@ -11,6 +11,7 @@ import com.schoolwork.mgmt.server.error.ValidationException
 import com.schoolwork.mgmt.server.model.*
 import com.schoolwork.mgmt.server.repository.*
 import com.schoolwork.mgmt.server.security.UserRole
+import com.schoolwork.mgmt.server.utils.PasswordUtils
 import org.apache.logging.log4j.LogManager
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -37,6 +38,8 @@ class UserService(
     companion object {
         private val logger = LogManager.getLogger()
     }
+
+    fun getUserByDiscordId(discordId: Long): User? = userRepository.findByDiscordUserId(discordId)
 
     fun getUserInSession(): User? {
         val auth = SecurityContextHolder.getContext().authentication
@@ -72,6 +75,7 @@ class UserService(
             role = UserRole.STUDENT,
             biography = "",
             isChallenger = DbBoolean.Y,
+            discordUserId = request.discordUserId,
             createdAt = now,
             updatedAt = now,
         ))
@@ -140,7 +144,7 @@ class UserService(
         val now = LocalDateTime.now()
         val mentor = userRepository.save(User(
             username = generateRandomString(6),
-            password = passwordEncoder.encode(generateRandomString(16)),
+            password = passwordEncoder.encode(PasswordUtils.generateRandomPassword(12)),
             nickname = UserConstants.USER_NAMES[Random.nextInt(0, UserConstants.USER_NAMES.size - 1)],
             role = UserRole.MENTOR,
             biography = "I’m a senior mentor at CoolCode and I hope I can help you with your journey in programing.",
@@ -151,7 +155,7 @@ class UserService(
         logger.info("Mentor ${mentor.username} created for ${user.username}")
         val peer = userRepository.save(User(
             username = generateRandomString(6),
-            password = passwordEncoder.encode(generateRandomString(16)),
+            password = passwordEncoder.encode(PasswordUtils.generateRandomPassword(12)),
             nickname = UserConstants.USER_NAMES[Random.nextInt(0, UserConstants.USER_NAMES.size - 1)],
             role = UserRole.STUDENT,
             peer = user,
@@ -211,8 +215,7 @@ class UserService(
     }
 
     private fun validatePasswordFormat(password: String) {
-        val regex = Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@.#$!%*?&^])[A-Za-z\\d@.#$!%*?&]{8,15}$")
-        if (!regex.matches(password)) {
+        if (!PasswordUtils.isValidPassword(password)) {
             throw ValidationException("Password should contain at least one lowercase and uppercase alphabet, one number, one special character @.#$!%*?&^, and with length between 8 and 15.")
         }
     }
