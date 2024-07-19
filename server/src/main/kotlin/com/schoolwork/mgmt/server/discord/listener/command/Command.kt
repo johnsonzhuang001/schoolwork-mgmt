@@ -6,6 +6,6 @@ import reactor.core.publisher.Mono
 
 abstract class Command: EventBase<ChatInputInteractionEvent>() {
     abstract fun getName(): String
-    final override fun dmOnly() = false
+    override fun dmOnly() = false
     public abstract override fun execute(event: ChatInputInteractionEvent): Mono<Void>
 }
