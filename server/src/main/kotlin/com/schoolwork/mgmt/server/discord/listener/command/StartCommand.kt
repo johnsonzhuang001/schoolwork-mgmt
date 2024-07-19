@@ -3,18 +3,12 @@ package com.schoolwork.mgmt.server.discord.listener.command
 import com.schoolwork.mgmt.server.dto.SignupRequest
 import com.schoolwork.mgmt.server.service.UserService
 import com.schoolwork.mgmt.server.utils.PasswordUtils
-import discord4j.common.util.Snowflake
-import discord4j.core.GatewayDiscordClient
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent
-import discord4j.core.`object`.entity.channel.PrivateChannel
-import discord4j.core.util.EntityUtil
-import discord4j.discordjson.json.DMCreateRequest
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
 @Component
 class StartCommand(
-    private val discordClient: GatewayDiscordClient,
     private val userService: UserService,
 ): Command() {
     final override fun getName() = "coolcodehacking_start"
@@ -32,27 +26,14 @@ class StartCommand(
                 nickname = author.username,
                 discordUserId = discordUserId,
             ))
-            message = "Student account has been set up. Please use this username and password to sign in: ${author.username} and $password"
+            message = """
+                Your student account has been set up. Please note down your username and password because both the challenge developer and I cannot help you retrieve your password.
+                Username: ${author.username}
+                Password: $password
+            """.trimIndent()
         }
-
-        if (isFromChannel(event)) {
-            discordClient.restClient.userService
-                .createDM(
-                    DMCreateRequest
-                        .builder()
-                        .recipientId(Snowflake.asString(discordUserId))
-                        .build()
-                ).map {
-                    EntityUtil.getChannel(discordClient, it)
-                }.cast(PrivateChannel::class.java).flatMap {
-                    it.createMessage(message)
-                }.block()
-            return event.reply()
-                .withEphemeral(true)
-                .withContent("Your command is well received! Please check my DM.")
-        } else {
-            return event.reply(message)
-        }
+        return event.reply(message)
+            .withEphemeral(true)
     }
 
     private fun generatePassword(): String {
