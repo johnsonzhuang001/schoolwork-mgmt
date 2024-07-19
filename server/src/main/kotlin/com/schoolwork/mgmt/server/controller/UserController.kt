@@ -8,6 +8,7 @@ import com.schoolwork.mgmt.server.dto.user.ValidatePasswordRequest
 import com.schoolwork.mgmt.server.service.UserService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -28,6 +29,7 @@ class UserController(
         return ResponseEntity(UserDto(userService.getUserByUsername(self, username)), HttpStatus.OK)
     }
 
+    @Transactional
     @PostMapping("/profile")
     fun amendUser(@RequestBody request: ProfileUpdateRequest): ResponseEntity<UserDto> {
         val self = userService.requireUserInSession()
@@ -48,6 +50,7 @@ class UserController(
         return ResponseEntity(OkDto(), HttpStatus.OK)
     }
 
+    @Transactional
     @PostMapping("/password/change")
     fun validatePassword(@RequestBody request: ChangePasswordRequest): ResponseEntity<OkDto> {
         val self = userService.requireUserInSession()
