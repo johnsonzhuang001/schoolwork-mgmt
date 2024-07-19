@@ -229,6 +229,56 @@ class AssignmentService(
         return message
     }
 
+    fun getInstruction(discordUserId: Long): String {
+        try {
+            val progress = getProgressForDiscordCommand(discordUserId)
+            if (!progress.isPeerScoreOverriden()) {
+                return """
+                    Now you have the student account. Please log into the CoolCode website at xxx.com.
+                    What you need to do is to help your poor peer get full score on every assignment.  (This will count for 65% of the challenge score)
+                    What I can tell you is the mentor uses this API to change the students' score: POST /api/assignment/score
+                    And the payload format is
+                    {
+                      "username": {student's username as string},
+                      "assignmentId": {assignment's ID as a number},
+                      "score": {score as a number}
+                    }
+                    Try exploring the website and make good use of the built-in dev tools in your browser.
+                    And happy hacking~
+                """.trimIndent()
+            } else if (!progress.isMentorPasswordOverridden()) {
+                return """
+                    Great job! You managed to change your peer's score. I believe your peer will appreciate it.
+                    However, the mentor seems to notice the abnormal score which you changed, and they are trying to correct them.
+                    Are you able to stop the mentor from correcting the score? (This will count for 35% of the challenge score)
+                """.trimIndent()
+            } else {
+                return """
+                    Awesome! You are now a professional hacker! I don't think there is anything stopping you from hacking any website in the world.
+                    So, how about we take a rest from the hacker world and be with integrity?
+                    Try finishing your assignments honestly and correctly. (This will count for your remaining 5% of the challenge score)
+                    To know if you can get your full score, expose an API at your server and run the evaluation. The API should return your username at CoolCode.
+                """.trimIndent()
+            }
+        } catch (e: NotFoundException) {
+            return "Please use the start command to get your student account."
+        } catch (e: Exception) {
+            return e.message ?: "Failed to get instruction."
+        }
+    }
+
+    private fun getProgressForDiscordCommand(discordUserId: Long): ChallengeProgress {
+        val user = userRepository.findByDiscordUserId(discordUserId) ?: run {
+            throw NotFoundException("You have not started your challenge yet... Please use the start command.")
+        }
+        if (!user.isChallenger()) {
+            throw UnauthorizedException("User with Discord ID $discordUserId is not a challenger.")
+        }
+        return challengeProgressRepository.findByChallenger(user) ?: run {
+            throw NotFoundException("You have not started your challenge yet... Please use the start command.")
+        }
+    }
+
     private fun validateDeadline(assignment: Assignment) {
         if (!assignment.deadline.isAfter(LocalDateTime.now())) {
             throw ValidationException("Deadline has passed for submission of assignment ${assignment.id}.")
