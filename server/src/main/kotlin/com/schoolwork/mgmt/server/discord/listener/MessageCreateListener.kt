@@ -15,7 +15,6 @@ final class MessageCreateListener(
 ): EventListener<MessageCreateEvent>() {
     final override fun getEventType() = MessageCreateEvent::class
     final override fun dmOnly() = true
-    final override fun getClient() = discordClient
 
     override fun execute(event: MessageCreateEvent): Mono<Void> {
         return discordClient.restClient.userService

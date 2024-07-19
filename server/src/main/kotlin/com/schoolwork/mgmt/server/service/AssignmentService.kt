@@ -161,6 +161,7 @@ class AssignmentService(
 
         // Update progress only if overriding peer's score
         if (!student.isChallenger()) {
+            // TODO: Update to true only if all assignments' score for the peer is 100
             val challenger = userRepository.findByMentorAndIsChallenger(self, DbBoolean.Y)
                 ?: throw NotFoundException("There is no challenger under mentor ${self.username}.")
             challengeProgressRepository.findByChallenger(challenger)?.also {
@@ -201,6 +202,31 @@ class AssignmentService(
                 }
             }
         }
+    }
+
+    fun getProgress(discordUserId: Long): String {
+        val user = userRepository.findByDiscordUserId(discordUserId) ?: run {
+            return "You have not started your challenge yet... Please use the start command."
+        }
+        if (!user.isChallenger()) {
+            return "User with Discord ID $discordUserId is not a challenger."
+        }
+        val progress = challengeProgressRepository.findByChallenger(user) ?: run {
+            return "You have not started your challenge yet... Please use the start command."
+        }
+        var message = "Your current progress is:"
+        if (progress.isPeerScoreOverriden()) {
+            message += "\nHelp your peer to get full score (Done)"
+            if (progress.isMentorPasswordOverridden()) {
+                message += "\nStop mentor from correcting the score (Done)"
+                message += "\nTry your best to finish all the assignments honestly :)"
+            } else {
+                message += "\nStop mentor from correcting the score (In Progress)"
+            }
+        } else {
+            message += "\nHelp your peer to get full score (In Progress)"
+        }
+        return message
     }
 
     private fun validateDeadline(assignment: Assignment) {
