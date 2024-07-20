@@ -41,3 +41,5 @@ out/
 
 ### Project ###
 src/main/resources/application-local.yaml
+src/main/resources/application-docker.yaml
+src/main/resources/certs

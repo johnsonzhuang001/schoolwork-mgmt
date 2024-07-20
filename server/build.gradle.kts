@@ -6,7 +6,7 @@ plugins {
     kotlin("plugin.spring") version "1.9.24"
 }
 
-group = "com.schoolwork.mgmt"
+group = "com.coolcode.server"
 version = "0.0.1"
 
 java {
