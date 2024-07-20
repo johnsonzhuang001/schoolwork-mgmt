@@ -1,6 +1,5 @@
 package com.schoolwork.mgmt.server.discord.listener
 
-import discord4j.common.util.Snowflake
 import discord4j.core.GatewayDiscordClient
 import discord4j.core.event.domain.message.MessageCreateEvent
 import discord4j.core.`object`.entity.channel.PrivateChannel
@@ -21,7 +20,7 @@ final class MessageCreateListener(
             .createDM(
                 DMCreateRequest
                     .builder()
-                    .recipientId(Snowflake.asString(886445392521228349))
+                    .recipientId(event.message.author.get().id.asString())
                     .build()
             ).map {
                 EntityUtil.getChannel(discordClient, it)

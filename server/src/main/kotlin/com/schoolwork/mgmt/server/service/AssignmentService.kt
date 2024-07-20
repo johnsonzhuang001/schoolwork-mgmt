@@ -9,6 +9,11 @@ import com.schoolwork.mgmt.server.error.ValidationException
 import com.schoolwork.mgmt.server.model.*
 import com.schoolwork.mgmt.server.repository.*
 import com.schoolwork.mgmt.server.security.UserRole
+import discord4j.common.util.Snowflake
+import discord4j.core.GatewayDiscordClient
+import discord4j.core.`object`.entity.channel.PrivateChannel
+import discord4j.core.util.EntityUtil
+import discord4j.discordjson.json.DMCreateRequest
 import org.apache.logging.log4j.LogManager
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -25,6 +30,7 @@ class AssignmentService(
     private val studentAssignmentRepository: StudentAssignmentRepository,
     private val userRepository: UserRepository,
     private val challengeProgressRepository: ChallengeProgressRepository,
+    private val discordClient: GatewayDiscordClient,
 ) {
     companion object {
         private val logger = LogManager.getLogger()
@@ -161,14 +167,30 @@ class AssignmentService(
 
         // Update progress only if overriding peer's score
         if (!student.isChallenger()) {
-            // TODO: Update to true only if all assignments' score for the peer is 100
             val challenger = userRepository.findByMentorAndIsChallenger(self, DbBoolean.Y)
                 ?: throw NotFoundException("There is no challenger under mentor ${self.username}.")
-            challengeProgressRepository.findByChallenger(challenger)?.also {
-                it.peerScoreOverridden = DbBoolean.Y
-                it.updatedAt = now
-                challengeProgressRepository.save(it)
-            } ?: run { throw NotFoundException("Challenge progress is not initiated for ${challenger.username}.") }
+            studentAssignmentRepository.findAllByStudent(student).let { studentAssignments ->
+                val progress = challengeProgressRepository.findByChallenger(challenger)?.also {
+                    it.peerScoreOverridden = DbBoolean.Y
+                    it.updatedAt = now
+                    challengeProgressRepository.save(it)
+                } ?: run { throw NotFoundException("Challenge progress is not initiated for ${challenger.username}.") }
+
+                // Send the instruction to the challenger if they haven't managed to override the mentor's password
+                if (!progress.isMentorPasswordOverridden()) {
+                    discordClient.restClient.userService
+                        .createDM(
+                            DMCreateRequest
+                                .builder()
+                                .recipientId(Snowflake.asString(challenger.discordUserId!!))
+                                .build()
+                        ).map {
+                            EntityUtil.getChannel(discordClient, it)
+                        }.cast(PrivateChannel::class.java).flatMap {
+                            it.createMessage(getInstruction(progress))
+                        }.block()
+                }
+            }
         }
 
         logger.info("Successfully uploaded score for ${student.username} of assignment ${request.assignmentId}")
@@ -204,39 +226,23 @@ class AssignmentService(
         }
     }
 
-    fun getProgress(discordUserId: Long): String {
-        val user = userRepository.findByDiscordUserId(discordUserId) ?: run {
-            return "You have not started your challenge yet... Please use the start command."
-        }
-        if (!user.isChallenger()) {
-            return "User with Discord ID $discordUserId is not a challenger."
-        }
-        val progress = challengeProgressRepository.findByChallenger(user) ?: run {
-            return "You have not started your challenge yet... Please use the start command."
-        }
-        var message = "Your current progress is:"
-        if (progress.isPeerScoreOverriden()) {
-            message += "\nHelp your peer to get full score (Done)"
-            if (progress.isMentorPasswordOverridden()) {
-                message += "\nStop mentor from correcting the score (Done)"
-                message += "\nTry your best to finish all the assignments honestly :)"
-            } else {
-                message += "\nStop mentor from correcting the score (In Progress)"
-            }
-        } else {
-            message += "\nHelp your peer to get full score (In Progress)"
-        }
-        return message
-    }
-
     fun getInstruction(discordUserId: Long): String {
         try {
             val progress = getProgressForDiscordCommand(discordUserId)
-            if (!progress.isPeerScoreOverriden()) {
-                return """
+            return getInstruction(progress)
+        } catch (e: NotFoundException) {
+            return "Please use the start command to get your student account."
+        } catch (e: Exception) {
+            return e.message ?: "Failed to get instruction."
+        }
+    }
+
+    fun getInstruction(progress: ChallengeProgress): String {
+        if (!progress.isPeerScoreOverriden()) {
+            return """
                     Now you have the student account. Please log into the CoolCode website at xxx.com.
-                    What you need to do is to help your poor peer get full score on every assignment.  (This will count for 65% of the challenge score)
-                    What I can tell you is the mentor uses this API to change the students' score: POST /api/assignment/score
+                    What you need to do is to help your poor peer get full score on every assignment.  (This will count for 60% of the challenge score)
+                    What I can tell you is the mentor uses this API to upload the students' score: POST /api/assignment/score
                     And the payload format is
                     {
                       "username": {student's username as string},
@@ -246,24 +252,21 @@ class AssignmentService(
                     Try exploring the website and make good use of the built-in dev tools in your browser.
                     And happy hacking~
                 """.trimIndent()
-            } else if (!progress.isMentorPasswordOverridden()) {
-                return """
-                    Great job! You managed to change your peer's score. I believe your peer will appreciate it.
+        } else if (!progress.isMentorPasswordOverridden()) {
+            return """
+                    Great job! You managed to change your peer's score.
                     However, the mentor seems to notice the abnormal score which you changed, and they are trying to correct them.
-                    Are you able to stop the mentor from correcting the score? (This will count for 35% of the challenge score)
+                    Hmm... I will only give you half of the 60% of the score, and the remaining half will be given when you managed to have all the scores fixed at 100.
+                    Before that, have a think about it: are you able to stop the mentor from correcting the score? (This will count for 35% of the challenge score)
                 """.trimIndent()
-            } else {
-                return """
-                    Awesome! You are now a professional hacker! I don't think there is anything stopping you from hacking any website in the world.
+        } else {
+            return """
+                    Awesome! The mentor can no longer log into CoolCode.
+                    You are now a professional hacker, and I don't think there is anything stopping you from hacking any website in the world.
                     So, how about we take a rest from the hacker world and be with integrity?
-                    Try finishing your assignments honestly and correctly. (This will count for your remaining 5% of the challenge score)
+                    After you manage to change your peer's score to 100 for every assignment, try finishing your assignments honestly and correctly. (This will count for your remaining 5% of the challenge score)
                     To know if you can get your full score, expose an API at your server and run the evaluation. The API should return your username at CoolCode.
                 """.trimIndent()
-            }
-        } catch (e: NotFoundException) {
-            return "Please use the start command to get your student account."
-        } catch (e: Exception) {
-            return e.message ?: "Failed to get instruction."
         }
     }
 
