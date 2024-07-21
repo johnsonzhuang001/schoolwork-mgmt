@@ -1,10 +1,11 @@
 import React from "react";
 import Loading from "./Loading";
-import { UserDto } from "../type/User";
+import { UserDto, UserRole } from "../type/User";
 import Text from "./Text";
 import { Tooltip } from "@mui/material";
 import { IoPersonOutline } from "react-icons/io5";
 import StudentAvatar from "../asset/student_avatar.png";
+import MentorAvatar from "../asset/mentor_avatar.png";
 
 interface AvatarProps {
   user: UserDto | null;
@@ -29,7 +30,7 @@ const Avatar: React.FC<AvatarProps> = ({ user, size, loading = false }) => {
           <img
             alt="Avatar Image"
             className="w-full h-full object-cover"
-            src={StudentAvatar}
+            src={user.role === UserRole.MENTOR ? MentorAvatar : StudentAvatar}
           />
         ) : (
           <Text type="secondary">

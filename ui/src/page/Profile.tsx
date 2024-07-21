@@ -160,7 +160,7 @@ const Profile: React.FC<ProfileProps> = ({ user, readonly }) => {
         <div className="w-full">
           <Back />
         </div>
-        <Avatar user={user} size={40} />
+        <Avatar user={user} size={80} />
         <div className="username w-full flex flex-col items-center">
           {!editingProfile && (
             <Text
