@@ -5,6 +5,7 @@ import Text from "./Text";
 import { Tooltip } from "@mui/material";
 import { AiOutlineMessage } from "react-icons/ai";
 import { MdOutlineEmail } from "react-icons/md";
+import Avatar from "./Avatar";
 
 const toReadableRole = (role: UserRole) => {
   switch (role) {
@@ -27,7 +28,7 @@ const UserCard = ({ user }: { user: UserDto }) => {
     >
       <div className="absolute w-full top-0 h-[64px] bg-blue z-0" />
       <div className="relative h-full flex flex-col items-center gap-[10px] pt-[30px] pb-[20px] px-[10px] z-1">
-        <div className="w-[60px] h-[60px] rounded-[30px] bg-whitegray" />
+        <Avatar user={user} size={60} />
         <div className="flex flex-col items-center">
           <Text>{user.nickname}</Text>
           <Text type="secondary" size="xs">
