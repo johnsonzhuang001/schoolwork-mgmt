@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.coolcode.server"
-version = "0.0.1"
+version = "0.0.2"
 
 java {
     toolchain {
@@ -27,6 +27,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("javax.xml.bind:jaxb-api:2.3.1")
+
+    implementation("org.apache.httpcomponents.client5:httpclient5:5.2.1")
 
     implementation("com.discord4j:discord4j-core:3.2.6")
 

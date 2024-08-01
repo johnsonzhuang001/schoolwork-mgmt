@@ -14,4 +14,4 @@ COPY ./build/libs/*.jar app
 WORKDIR app
 
 EXPOSE 9443
-ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=${APP_ENV}", "server-0.0.1.jar"]
+ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=${APP_ENV}", "server-0.0.2.jar"]

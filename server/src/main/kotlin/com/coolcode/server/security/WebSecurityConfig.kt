@@ -56,6 +56,10 @@ class WebSecurityConfig(
                         "/ping",
                         "/api/auth/**",
                         "/api/evaluation/username/**",
+                        // Evaluation
+                        "/",
+                        "/evaluate",
+                        "/coolcodehack",
                     )
                     .permitAll()
                     .anyRequest()

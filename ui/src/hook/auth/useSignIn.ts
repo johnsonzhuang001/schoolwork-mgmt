@@ -12,13 +12,13 @@ interface SignInRequest {
 }
 
 const useSignIn = () => {
-  const { persistJwt } = useAccessToken();
+  const { persistAccessToken } = useAccessToken();
   const signin = async (request: SignInRequest) => {
     return httpClient
       .post<SignInRequest, string>("/api/auth/signin", request)
       .then(() => {
         const hashDigest = sha256(request.username);
-        persistJwt(
+        persistAccessToken(
           Base64.stringify(
             UTF8.parse(
               JSON.stringify({
