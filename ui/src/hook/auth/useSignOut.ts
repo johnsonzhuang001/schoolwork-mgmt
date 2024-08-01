@@ -2,10 +2,10 @@ import useAccessToken from "./useAccessToken";
 import queryClient from "../../query/queryClient";
 
 const useSignOut = () => {
-  const { clearJwt } = useAccessToken();
+  const { clearAccessToken } = useAccessToken();
 
   const signout = () => {
-    clearJwt();
+    clearAccessToken();
     queryClient.clear();
   };
 

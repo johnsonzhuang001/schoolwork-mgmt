@@ -5,6 +5,15 @@ spring:
     url: ${MSSQL_URL}
     username: ${MSSQL_USERNAME}
     password: ${MSSQL_PASSWORD}
+  ssl:
+    bundle:
+      pem:
+        crazy-collectors:
+          truststore:
+            certificate: file:${CRAZY_COLLECTORS_CERT}
+        heroku:
+          truststore:
+            certificate: file:${HEROKU_CERT}
 
 server:
   port: 9443
@@ -19,3 +28,7 @@ discord:
     # It cannot be named as token. Otherwise, the env variable will override the specific profile variable... IDK why...
     token1: ${DISCORD_COOLCODEHACKER_TOKEN}
     channel: ${DISCORD_COOLCODEHACKER_CHANNEL_ID}
+
+app:
+  coordinator-auth-token: ${COORDINATOR_AUTH_TOKEN}
+  instruction-url: ${INSTRUCTION_URL}

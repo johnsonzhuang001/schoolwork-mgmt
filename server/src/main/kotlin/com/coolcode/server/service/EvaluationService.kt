@@ -1,13 +1,24 @@
 package com.coolcode.server.service
 
+import com.coolcode.server.dto.evaluation.EvaluationRequest
+import com.coolcode.server.dto.evaluation.EvaluationResult
+import com.coolcode.server.dto.evaluation.TeamResponse
 import com.coolcode.server.error.NotFoundException
 import com.coolcode.server.error.ValidationException
+import com.coolcode.server.model.User
 import com.coolcode.server.repository.AssignmentRepository
 import com.coolcode.server.repository.ChallengeProgressRepository
 import com.coolcode.server.repository.StudentAssignmentRepository
 import com.coolcode.server.repository.UserRepository
 import org.apache.logging.log4j.LogManager
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.MediaType.APPLICATION_JSON
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.AuthenticationException
 import org.springframework.stereotype.Service
+import org.springframework.web.client.RestClient
 import java.math.BigDecimal
 
 @Service
@@ -17,9 +28,36 @@ class EvaluationService(
     private val assignmentService: AssignmentService,
     private val studentAssignmentRepository: StudentAssignmentRepository,
     private val challengeProgressRepository: ChallengeProgressRepository,
+    @Qualifier("restClient")
+    private val restClient: RestClient,
+    @Value("\${app.coordinator-auth-token}")
+    private val coordinatorAuthToken: String,
+    private val authenticationManager: AuthenticationManager,
 ) {
     companion object {
         private val logger = LogManager.getLogger()
+    }
+
+    fun startEvaluation(request: EvaluationRequest) {
+        try {
+            logger.info("Starting evaluation of ${request.teamUrl}")
+            // TODO: Require password encryption with randomly generated key
+            val result = restClient.post()
+                .uri("${request.teamUrl}/coolcodehack")
+                .contentType(APPLICATION_JSON)
+                .retrieve()
+                .body(TeamResponse::class.java) ?: throw NotFoundException("Failed to get result from ${request.teamUrl}")
+            authenticationManager.authenticate(UsernamePasswordAuthenticationToken(result.username, result.password))
+            val score = evaluate(result.username)
+            notifyCoordinator(request, score, getProgress(result.username))
+            logger.info("Finished evaluation of ${request.teamUrl}")
+        } catch (e: AuthenticationException) {
+            logger.error("Failed to authenticate team ${request.teamUrl}", e)
+            notifyCoordinator(request, BigDecimal.ZERO, "Username or password is incorrect.")
+        } catch (e: Exception) {
+            logger.error("Failed to evaluate team ${request.teamUrl}", e)
+            notifyCoordinator(request, BigDecimal.ZERO, e.message ?: "Evaluation failed.")
+        }
     }
 
     fun evaluate(username: String): BigDecimal {
@@ -63,12 +101,23 @@ class EvaluationService(
         return score
     }
 
+    fun getProgress(username: String): String {
+        val user = userRepository.findByUsername(username) ?: run {
+            return "You have not started your challenge yet... Please use the start command."
+        }
+        return getProgress(user)
+    }
+
     fun getProgress(discordUserId: Long): String {
         val user = userRepository.findByDiscordUserId(discordUserId) ?: run {
             return "You have not started your challenge yet... Please use the start command."
         }
+        return getProgress(user)
+    }
+
+    private fun getProgress(user: User): String {
         if (!user.isChallenger()) {
-            return "User with Discord ID $discordUserId is not a challenger."
+            return "User ${user.username} is not a challenger."
         }
         val progress = challengeProgressRepository.findByChallenger(user) ?: run {
             return "You have not started your challenge yet... Please use the start command."
@@ -86,5 +135,17 @@ class EvaluationService(
             message += "\nChange your peer's score [60%] (In Progress)"
         }
         return message
+    }
+
+    private fun notifyCoordinator(request: EvaluationRequest, score: BigDecimal, message: String) {
+        restClient.post()
+            .uri(request.callbackUrl)
+            .header("Authorization", "Bearer $coordinatorAuthToken")
+            .body(EvaluationResult(
+                runId = request.runId,
+                score = score,
+                message = message,
+            ))
+            .retrieve()
     }
 }

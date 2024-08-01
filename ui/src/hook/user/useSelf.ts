@@ -6,7 +6,7 @@ import useAuthenticatedQueryFn from "../auth/useAuthenticatedQueryFn";
 import useAccessToken from "../auth/useAccessToken";
 
 const useSelf = () => {
-  const { accessToken } = useAccessToken();
+  const { accessToken, clearAccessToken } = useAccessToken();
   const { data, isLoading, error } = useQuery<Readonly<UserDto> | null>({
     queryKey: [QueryKey.USER_SELF],
     queryFn: useAuthenticatedQueryFn(() => httpClient.get("/api/user/self")),
@@ -15,6 +15,10 @@ const useSelf = () => {
     retry: 0,
     enabled: !!accessToken,
   });
+
+  if (error) {
+    clearAccessToken();
+  }
 
   return {
     self: data ?? null,

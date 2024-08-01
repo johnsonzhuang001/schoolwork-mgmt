@@ -22,8 +22,8 @@ const useAccessToken = () => {
 
   return {
     accessToken,
-    persistJwt: persistAccessToken,
-    clearJwt: clearAccessToken,
+    persistAccessToken,
+    clearAccessToken,
   };
 };
 
