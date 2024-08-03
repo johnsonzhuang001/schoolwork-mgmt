@@ -12,7 +12,8 @@ interface ButtonProps {
     | "red"
     | "white"
     | "yellow"
-    | "green";
+    | "green"
+    | "dark";
   size?: "lg" | "base" | "sm" | "xs";
   rounded?: boolean;
   text: string;
@@ -50,6 +51,8 @@ const Button: React.FC<ButtonProps> = ({
           return "bg-red";
         case "green":
           return "bg-green";
+        case "dark":
+          return "bg-dark";
       }
     }
     return "";
