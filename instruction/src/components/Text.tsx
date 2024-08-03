@@ -1,0 +1,113 @@
+import React, { ReactNode } from "react";
+import { TextColor } from "../type/Color";
+
+interface TextProps {
+  type?: TextColor;
+  size?: "banner" | "sub-banner" | "2xl" | "xl" | "lg" | "base" | "sm" | "xs";
+  pointer?: boolean;
+  weight?: "bold" | "normal" | "thin";
+  inline?: boolean;
+  children: ReactNode;
+  onClick?: () => void;
+  className?: string;
+  wrap?: "default" | "prewrap";
+}
+
+const Text: React.FC<TextProps> = ({
+  type = "primary",
+  size = "base",
+  pointer = false,
+  weight = "base",
+  inline = true,
+  onClick,
+  children,
+  className = "",
+  wrap = "default",
+}) => {
+  const getHoverColor = () => {
+    switch (type) {
+      case "primary":
+        return "secondary";
+      case "secondary":
+        return "primary";
+      default:
+        return "secondary";
+    }
+  };
+  const getWrapClass = () => {
+    switch (wrap) {
+      case "prewrap":
+        return "whitespace-pre-wrap";
+      case "default":
+        return "";
+    }
+  };
+  const getFontSizeClass = () => {
+    switch (size) {
+      case "xs":
+        return "text-xs";
+      case "sm":
+        return "mobile:text-sm text-xs";
+      case "base":
+        return "mobile:text-base text-sm";
+      case "lg":
+        return "mobile:text-lg text-base";
+      case "xl":
+        return "mobile:text-xl text-lg";
+      case "2xl":
+        return "mobile:text-2xl text-xl";
+      case "sub-banner":
+        return "md:text-[36px] sm:text-[30px] text-[24px]";
+      case "banner":
+        return "md:text-[96px] sm:text-[70px] text-[60px]";
+      default:
+        return "text-base";
+    }
+  };
+  const getColorClass = () => {
+    switch (type) {
+      case "primary":
+        return "text-primary";
+      case "secondary":
+        return "text-secondary";
+      case "danger":
+        return "text-red";
+      case "link":
+        return "text-blue";
+      case "white":
+        return "text-white";
+      case "warning":
+        return "text-yellow";
+      case "success":
+        return "text-green";
+      default:
+        return "text-primary";
+    }
+  };
+  const getWeightClass = () => {
+    switch (weight) {
+      case "bold":
+        return "font-bold";
+      case "base":
+        return "";
+      case "thin":
+        return "font-thin";
+      default:
+        return "font-normal";
+    }
+  };
+  const textClassName = `${getColorClass()} ${getWrapClass()} ${getFontSizeClass()} ${getWeightClass()} ${
+    pointer ? `cursor-pointer hover:text-${getHoverColor()}` : ""
+  } ${className}`;
+  return inline ? (
+    <span className={textClassName} onClick={onClick}>
+      {children}
+    </span>
+  ) : (
+    <p className={textClassName} onClick={onClick}>
+      {children}
+    </p>
+  );
+};
+
+export default Text;
