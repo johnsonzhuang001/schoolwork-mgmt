@@ -6,7 +6,8 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Hacker World",
-  description: "Hacker World gathers the top-level hackers from all over the world.",
+  description:
+    "Hacker World gathers the top-level hackers from all over the world.",
 };
 
 export default function RootLayout({
