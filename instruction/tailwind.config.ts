@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+const colors = require("tailwindcss/colors");
 
 const config: Config = {
   content: [
@@ -8,13 +9,33 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      backgroundImage: {
-        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "gradient-conic":
-          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
+      aspectRatio: {
+        "3/4": "3 / 4",
+        "4/3": "4 / 3",
+        "1/1": "1 / 1",
       },
+    },
+    screens: {
+      mobile: "450px",
+      sm: "748px",
+      md: "980px",
+      lg: "1200px",
+    },
+    colors: {
+      ...colors,
+      dark: "#111111",
+      primary: "#444444",
+      secondary: "#888888",
+      green: "#34a853",
+      blue: "#4285f4",
+      red: "#ea4335",
+      orange: "#FF9F47",
+      whitegray: "#EEEEEE",
+      yellow: "#fbbc05",
+      almostwhite: "#F8F8F8",
     },
   },
   plugins: [],
 };
+
 export default config;
