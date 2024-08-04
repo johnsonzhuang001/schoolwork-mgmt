@@ -33,7 +33,7 @@ const request = async <P, R>({
   payload?: P;
   file?: File | File[];
 }): Promise<R> => {
-  const accessToken = localStorage.getItem(StorageKey.ACCESS_TOKEN);
+  const accessToken = localStorage?.getItem(StorageKey.ACCESS_TOKEN);
   const isAuth = url.includes("/api/auth");
   headers["Content-Type"] = "application/json";
   if (accessToken && !isAuth) {
