@@ -30,6 +30,7 @@ const useSignUp = () => {
           ),
         );
         queryClient.invalidateQueries({ queryKey: [QueryKey.USER_SELF] });
+        queryClient.invalidateQueries({ queryKey: [QueryKey.PROGRESS] });
       });
   };
 

@@ -10,3 +10,10 @@ export interface UserDto {
   role: UserRole;
   biography: string;
 }
+
+export interface ProgressDto {
+  score: number;
+  peerScoreOverridden: boolean;
+  mentorPasswordOverridden: boolean;
+  peerAllScoresOverridden: boolean;
+}
