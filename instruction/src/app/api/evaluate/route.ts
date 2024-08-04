@@ -1,4 +1,4 @@
-const BASE_URL = process.env.REACT_APP_API_URL ?? "https://localhost:9443";
+import { API_BASE_URL } from "@/constant/url";
 
 export async function POST(request: Request) {
   const { runId, teamUrl, callbackUrl } = await request.json();
@@ -8,7 +8,7 @@ export async function POST(request: Request) {
     });
   }
   try {
-    const result = await fetch(`${BASE_URL}/evaluate`, {
+    const result = await fetch(`${API_BASE_URL}/evaluate`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -22,6 +22,7 @@ export async function POST(request: Request) {
     return Response.json(result);
   } catch (error) {
     if (error instanceof Error) {
+      console.error("Failed to get evaluation", error);
       return new Response(`Failed to get evaluation: ${error.message}`, {
         status: 500,
       });
