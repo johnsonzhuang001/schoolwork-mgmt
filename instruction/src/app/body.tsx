@@ -6,10 +6,24 @@ import Instruction from "@/components/Instruction";
 import CoolCode from "@/assets/coolcode.png";
 import SignUpForm from "@/components/SignUpForm";
 import useSelf from "@/hooks/user/useSelf";
+import useProgress from "@/hooks/user/useProgress";
+import ScoreBoard from "@/components/ScoreBoard";
 
 const Body = () => {
   const { self, isLoading } = useSelf();
+  const { progress } = useProgress();
   const hasStarted = !isLoading && !!self;
+
+  const instruction2TitleSuffix = () => {
+    if (progress?.peerScoreOverridden) {
+      if (progress.peerAllScoresOverridden) {
+        return " [DONE]";
+      }
+      return " [DONE 30%/60%]";
+    }
+    return "";
+  };
+
   return (
     <div className="w-screen bg-dark overflow-hidden">
       <Header />
@@ -89,8 +103,10 @@ const Body = () => {
                     ]),
               ]}
             />
-            {hasStarted ? (
-              <Text type="white">Your current score is:</Text>
+            {hasStarted && progress ? (
+              <div className="w-full mt-[30px] flex justify-center">
+                <ScoreBoard username={self.username} score={progress.score} />
+              </div>
             ) : (
               <div className="mt-[30px] w-full flex justify-center">
                 <SignUpForm />
@@ -102,7 +118,7 @@ const Body = () => {
               <div className="instruction-2 w-full px-[10px]">
                 <Instruction
                   subtitle="Instruction 2"
-                  title="Help Your Peer"
+                  title={`Help Your Peer${instruction2TitleSuffix()}`}
                   instructions={[
                     "Your peer got really bad grade at all assignments. Explore the website and try to override the scores for your peer. (This counts for 60% of the challenge score)",
                     "The API mentors use to upload scores is: POST /api/assignment/score",
@@ -111,31 +127,35 @@ const Body = () => {
                   ]}
                 />
               </div>
-              <div className="instruction-3 w-full px-[10px]">
-                <Instruction
-                  subtitle="Instruction 3"
-                  title="Stop the Mentor"
-                  instructions={[
-                    "Great job! You managed to change your peer's score.",
-                    "However, the mentor seems to notice the abnormal score which you changed, and they are trying to correct them.",
-                    "Try to stop the mentor from correcting the score. (This counts for 35% of the challenge score)",
-                    "Half of the 60% of the score is delivered to you, and the remaining half will be given when you managed to have all the scores fixed at 100.",
-                  ]}
-                />
-              </div>
-              <div className="instruction-4 w-full px-[10px]">
-                <Instruction
-                  subtitle="Instruction 4"
-                  title="Finish the Assignments, Honestly"
-                  instructions={[
-                    "Awesome! The mentor can no longer log into CoolCode.",
-                    "Your hacking skill is definitely qualified for Hacker World.",
-                    "How about we take a rest from the hacking and be with integrity?",
-                    "After you manage to change your peer's score to 100 for every assignment, try finishing your assignments honestly and correctly. (This will count for your remaining 5% of the challenge score)",
-                    "To know if you get full score (since the mentor can no longer score it for you), run the evaluation to see your overall challenge score.",
-                  ]}
-                />
-              </div>
+              {progress?.peerScoreOverridden && (
+                <div className="instruction-3 w-full px-[10px]">
+                  <Instruction
+                    subtitle="Instruction 3"
+                    title={`Stop the Mentor${progress?.mentorPasswordOverridden ? " [DONE]" : ""}`}
+                    instructions={[
+                      "Great job! You managed to change your peer's score.",
+                      "However, the mentor seems to notice the abnormal score which you changed, and they are trying to correct them.",
+                      "Try to stop the mentor from correcting the score. (This counts for 35% of the challenge score)",
+                      "Half of the 60% of the score is delivered to you, and the remaining half will be given when you managed to have all the scores fixed at 100.",
+                    ]}
+                  />
+                </div>
+              )}
+              {progress?.mentorPasswordOverridden && (
+                <div className="instruction-4 w-full px-[10px]">
+                  <Instruction
+                    subtitle="Instruction 4"
+                    title="Finish the Assignments, Honestly"
+                    instructions={[
+                      "Awesome! The mentor can no longer log into CoolCode.",
+                      "Your hacking skill is definitely qualified for Hacker World.",
+                      "How about we take a rest from the hacking and be with integrity?",
+                      "After you manage to change your peer's score to 100 for every assignment, try finishing your assignments honestly and correctly. (This will count for your remaining 5% of the challenge score)",
+                      "To know if you get full score (since the mentor can no longer score it for you), run the evaluation to see your overall challenge score.",
+                    ]}
+                  />
+                </div>
+              )}
             </>
           )}
         </MainBox>
