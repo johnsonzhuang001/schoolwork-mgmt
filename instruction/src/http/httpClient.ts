@@ -1,6 +1,5 @@
 import { StorageKey } from "@/constant/localStorage";
-
-const BASE_URL = process.env.REACT_APP_API_URL ?? "https://localhost:9443";
+import { API_BASE_URL } from "@/constant/url";
 
 const isJson = (str: string) => {
   try {
@@ -33,7 +32,10 @@ const request = async <P, R>({
   payload?: P;
   file?: File | File[];
 }): Promise<R> => {
-  const accessToken = localStorage?.getItem(StorageKey.ACCESS_TOKEN);
+  const accessToken =
+    typeof window !== "undefined"
+      ? localStorage.getItem(StorageKey.ACCESS_TOKEN)
+      : null;
   const isAuth = url.includes("/api/auth");
   headers["Content-Type"] = "application/json";
   if (accessToken && !isAuth) {
@@ -41,7 +43,7 @@ const request = async <P, R>({
   }
   let ok = false;
   let status: number = 500;
-  return fetch(`${BASE_URL}${url}`, {
+  return fetch(`${API_BASE_URL}${url}`, {
     mode: "cors",
     method,
     headers: {
