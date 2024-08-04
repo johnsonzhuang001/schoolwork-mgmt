@@ -12,7 +12,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 import org.springframework.stereotype.Component
 
 
-@Component
+//@Component
 class EventListenerAndCommandRegistrar<T: Event>(
     private val discordClient: GatewayDiscordClient,
     private val eventListeners: List<EventListener<T>>,

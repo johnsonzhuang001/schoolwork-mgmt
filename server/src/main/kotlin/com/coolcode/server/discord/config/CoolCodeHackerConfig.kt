@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 
-@Configuration
+//@Configuration
 class CoolCodeHackerConfig(
     @Value("\${discord.coolcodehacker.token1}")
     private val token: String,

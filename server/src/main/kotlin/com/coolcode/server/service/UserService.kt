@@ -38,7 +38,7 @@ class UserService(
     private val assignmentService: AssignmentService,
     private val studentAssignmentRepository: StudentAssignmentRepository,
     private val challengeProgressRepository: ChallengeProgressRepository,
-    private val discordClient: GatewayDiscordClient,
+//    private val discordClient: GatewayDiscordClient,
 ) {
 
     companion object {
@@ -128,17 +128,17 @@ class UserService(
                 progress.mentorPasswordOverridden = DbBoolean.Y
                 progress.updatedAt = now
                 challengeProgressRepository.save(progress)
-                discordClient.restClient.userService
-                    .createDM(
-                        DMCreateRequest
-                            .builder()
-                            .recipientId(Snowflake.asString(challenger.discordUserId!!))
-                            .build()
-                    ).map {
-                        EntityUtil.getChannel(discordClient, it)
-                    }.cast(PrivateChannel::class.java).flatMap {
-                        it.createMessage(assignmentService.getInstruction(progress))
-                    }.block()
+//                discordClient.restClient.userService
+//                    .createDM(
+//                        DMCreateRequest
+//                            .builder()
+//                            .recipientId(Snowflake.asString(challenger.discordUserId!!))
+//                            .build()
+//                    ).map {
+//                        EntityUtil.getChannel(discordClient, it)
+//                    }.cast(PrivateChannel::class.java).flatMap {
+//                        it.createMessage(assignmentService.getInstruction(progress))
+//                    }.block()
             } ?: run {
                 throw NotFoundException("There is no challenger under mentor ${self.username}.")
             }
