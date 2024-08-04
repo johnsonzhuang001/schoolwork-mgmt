@@ -1,22 +1,21 @@
 import httpClient from "../../http/httpClient";
 import useAccessToken from "./useAccessToken";
-import queryClient from "@/query/queryClient";
+import queryClient from "../../query/queryClient";
 import { QueryKey } from "@/query/queryKey";
 import sha256 from "crypto-js/sha256";
 import Base64 from "crypto-js/enc-base64";
 import UTF8 from "crypto-js/enc-utf8";
 
-interface SignUpRequest {
+interface SignInRequest {
   username: string;
   password: string;
-  nickname: string;
 }
 
-const useSignUp = () => {
+const useSignIn = () => {
   const { persistAccessToken } = useAccessToken();
-  const signup = async (request: SignUpRequest) => {
+  const signin = async (request: SignInRequest) => {
     return httpClient
-      .post<SignUpRequest, string>("/api/auth/signup", request)
+      .post<SignInRequest, string>("/api/auth/signin", request)
       .then(() => {
         const hashDigest = sha256(request.username);
         persistAccessToken(
@@ -34,8 +33,8 @@ const useSignUp = () => {
   };
 
   return {
-    signup,
+    signin,
   };
 };
 
-export default useSignUp;
+export default useSignIn;

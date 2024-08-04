@@ -6,6 +6,7 @@ import Button from "@/components/Button";
 import Input from "@/components/Input";
 import useSignUp from "@/hooks/auth/useSignUp";
 import { useRouter } from "next/navigation";
+import useSignIn from "@/hooks/auth/useSignIn";
 
 interface Errors {
   username: string;
@@ -23,7 +24,8 @@ const SignUpForm = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<Errors>(initialErrors);
-  const { signin } = useSignUp();
+  const { signup } = useSignUp();
+  const { signin } = useSignIn();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -39,10 +41,11 @@ const SignUpForm = () => {
     return valid;
   };
 
-  const onSubmit = () => {
+  const onSubmit = (isSignUp: boolean) => {
     if (isValid()) {
       setLoading(true);
-      return signin({
+      const func = isSignUp ? signup : signin;
+      return func({
         username: username,
         password,
         nickname: username,
@@ -89,14 +92,24 @@ const SignUpForm = () => {
           </Text>
         </div>
       )}
-      <Button
-        fullWidth
-        color="dark"
-        text="Sign Up"
-        rounded
-        onClick={onSubmit}
-        loading={loading}
-      />
+      <div className="w-full flex flex-col gap-[5px]">
+        <Button
+          fullWidth
+          color="dark"
+          text="Sign Up"
+          rounded
+          onClick={() => onSubmit(true)}
+          loading={loading}
+        />
+        <Button
+          fullWidth
+          color="dark"
+          text="Sign In"
+          rounded
+          onClick={() => onSubmit(false)}
+          loading={loading}
+        />
+      </div>
     </div>
   );
 };

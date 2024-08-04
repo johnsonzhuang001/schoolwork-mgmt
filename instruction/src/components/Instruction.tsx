@@ -29,9 +29,9 @@ const Instruction: React.FC<InstructionProps> = ({
         </Text>
       </div>
       <div className="max-w-[800px] flex flex-col gap-[5px]">
-        {instructions.map((instruction) => {
+        {instructions.map((instruction, index) => {
           return (
-            <Text type="white" wrap="prewrap" inline={false}>
+            <Text key={index} type="white" wrap="prewrap" inline={false}>
               {instruction}
             </Text>
           );
