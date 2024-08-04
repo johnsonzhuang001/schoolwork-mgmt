@@ -30,7 +30,7 @@ class AssignmentService(
     private val studentAssignmentRepository: StudentAssignmentRepository,
     private val userRepository: UserRepository,
     private val challengeProgressRepository: ChallengeProgressRepository,
-    private val discordClient: GatewayDiscordClient,
+//    private val discordClient: GatewayDiscordClient,
 ) {
     companion object {
         private val logger = LogManager.getLogger()
@@ -177,19 +177,19 @@ class AssignmentService(
                 } ?: run { throw NotFoundException("Challenge progress is not initiated for ${challenger.username}.") }
 
                 // Send the instruction to the challenger if they haven't managed to override the mentor's password
-                if (!progress.isMentorPasswordOverridden()) {
-                    discordClient.restClient.userService
-                        .createDM(
-                            DMCreateRequest
-                                .builder()
-                                .recipientId(Snowflake.asString(challenger.discordUserId!!))
-                                .build()
-                        ).map {
-                            EntityUtil.getChannel(discordClient, it)
-                        }.cast(PrivateChannel::class.java).flatMap {
-                            it.createMessage(getInstruction(progress))
-                        }.block()
-                }
+//                if (!progress.isMentorPasswordOverridden()) {
+//                    discordClient.restClient.userService
+//                        .createDM(
+//                            DMCreateRequest
+//                                .builder()
+//                                .recipientId(Snowflake.asString(challenger.discordUserId!!))
+//                                .build()
+//                        ).map {
+//                            EntityUtil.getChannel(discordClient, it)
+//                        }.cast(PrivateChannel::class.java).flatMap {
+//                            it.createMessage(getInstruction(progress))
+//                        }.block()
+//                }
             }
         }
 

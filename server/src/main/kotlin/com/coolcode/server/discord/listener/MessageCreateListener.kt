@@ -8,7 +8,7 @@ import discord4j.discordjson.json.DMCreateRequest
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
-@Component
+//@Component
 final class MessageCreateListener(
     private val discordClient: GatewayDiscordClient,
 ): EventListener<MessageCreateEvent>() {
