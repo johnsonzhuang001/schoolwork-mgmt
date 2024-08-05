@@ -71,7 +71,7 @@ const SignUpForm = () => {
       <div className="inputs w-full flex flex-col gap-[5px]">
         <Input
           type="text"
-          title="Team Name"
+          title="Username"
           value={username}
           onChange={setUsername}
           error={errors.username}
