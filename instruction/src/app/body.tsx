@@ -16,7 +16,10 @@ const Body = () => {
 
   const instruction2TitleSuffix = () => {
     if (progress?.peerScoreOverridden) {
-      if (progress.peerAllScoresOverridden) {
+      if (
+        progress.mentorPasswordOverridden &&
+        progress.peerAllScoresOverridden
+      ) {
         return " [DONE]";
       }
       return " [DONE 30%/60%]";
@@ -65,7 +68,7 @@ const Body = () => {
               title="Hack CoolCode Education"
               instructions={[
                 "CoolCode Education is a platform for students interested in programming. Students can examine their programming skills by finishing the assignments created by CoolCode mentors.",
-                "The website is at https://jolly-coast-00af64000.5.azurestaticapps.net",
+                "The website is at\nhttps://jolly-coast-00af64000.5.azurestaticapps.net",
                 "Your hacking task is to help your peer who is poor at programming to get full score at every assignment.",
                 "Instructions will be given based on your progress.",
               ]}
@@ -83,9 +86,9 @@ const Body = () => {
               title="Expose an API"
               instructions={[
                 "You need to expose a POST API at your server.",
-                "It should returns a payload containing your team name and password, which are used to start this challenge.",
-                'The response should follow the below format:\n{\n\t"username": "{your team name}",\n\t"password": "{your password}"\n}',
-                "This API is required to evaluate and upload the score of this challenge. The team name and password are what you input to start this challenge.",
+                "It should return a payload containing your username and password, which are used to start this challenge.",
+                'The response should follow the below format:\n{\n\t"username": "{your username}",\n\t"password": "{your password}"\n}',
+                "This API is required to evaluate and upload the score of this challenge at\nhttps://coordinator-frontend-dev-edae0df3eb28.herokuapp.com/#/evaluation",
               ]}
             />
           </div>
@@ -97,7 +100,8 @@ const Body = () => {
                 ...(hasStarted
                   ? ["You have started the challenge."]
                   : [
-                      "Input your team name and password to start the challenge.",
+                      "Input your username and password to start the challenge.",
+                      "Keep your username and password safe!",
                       "Click Sign Up if you haven't started.",
                       "Click Sign In if you have started already.",
                     ]),
@@ -121,7 +125,7 @@ const Body = () => {
                   title={`Help Your Peer${instruction2TitleSuffix()}`}
                   instructions={[
                     "Your peer got really bad grade at all assignments. Explore the website and try to override the scores for your peer. (This counts for 60% of the challenge score)",
-                    "The API mentors use to upload scores is: POST /api/assignment/score",
+                    "The API mentors use to upload scores is:\nPOST https://api.crazy-collectors.com/coolcode/api/assignment/score",
                     'And the request body to this API is with the below format:\n{\n\t"username": {student\'s username as string},\n\t"assignmentId": {assignment\'s ID as a number},\n\t"score": {score as a number}\n}',
                     "HINT: Make good use of the browser dev tools.",
                   ]}
@@ -136,7 +140,7 @@ const Body = () => {
                       "Great job! You managed to change your peer's score.",
                       "However, the mentor seems to notice the abnormal score which you changed, and they are trying to correct them.",
                       "Try to stop the mentor from correcting the score. (This counts for 35% of the challenge score)",
-                      "Half of the 60% of the score is delivered to you, and the remaining half will be given when you managed to have all the scores fixed at 100.",
+                      "Half of the score from the previous instruction is delivered to you, and the remaining half will be given when you manage to have all the scores fixed at 100.",
                     ]}
                   />
                 </div>
@@ -151,7 +155,7 @@ const Body = () => {
                       "Your hacking skill is definitely qualified for Hacker World.",
                       "How about we take a rest from the hacking and be with integrity?",
                       "After you manage to change your peer's score to 100 for every assignment, try finishing your assignments honestly and correctly. (This will count for your remaining 5% of the challenge score)",
-                      "To know if you get full score (since the mentor can no longer score it for you), run the evaluation to see your overall challenge score.",
+                      "Don't forget to run the evaluation at\nhttps://coordinator-frontend-dev-edae0df3eb28.herokuapp.com/#/evaluation\nto upload your score of this challenge.",
                     ]}
                   />
                 </div>
