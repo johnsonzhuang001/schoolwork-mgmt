@@ -38,21 +38,24 @@ class AuthUtils(
 
     fun validateAuthToken(token: AuthToken) {
         // Compare the hash from the token with the hashed username + salt
-        val md = MessageDigest.getInstance("SHA-256")
-        val hash = md.digest((token.username + SALT).toByteArray())
-            .joinToString("") { "%02x".format(it and 0xFF.toByte()) }
+        val hash = hashUsername(token.username)
         if (hash != token.hash) {
             throw UnauthorizedException("Invalid username or password")
         }
     }
 
     fun generateToken(username: String): String {
-        val md = MessageDigest.getInstance("SHA-256")
-        val hash = md.digest(username.toByteArray())
-            .joinToString("") { "%02x".format(it and 0xFF.toByte()) }
+        val hash = hashUsername(username)
         return String(Base64.getEncoder().encode(objectMapper.writeValueAsBytes(AuthToken(
             username = username,
             hash = hash
         ))))
+    }
+
+    private fun hashUsername(username: String): String {
+        val md = MessageDigest.getInstance("SHA-256")
+        val hash = md.digest((username + SALT).toByteArray())
+            .joinToString("") { "%02x".format(it and 0xFF.toByte()) }
+        return hash
     }
 }
