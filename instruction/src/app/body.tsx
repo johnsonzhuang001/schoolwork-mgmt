@@ -85,10 +85,10 @@ const Body = () => {
               subtitle="Pre Requisites"
               title="Expose an API"
               instructions={[
-                "You need to expose a POST API at your server.",
+                "You need to expose an API at your server:\nPOST {your server URL}/coolcodehack",
                 "It should return a payload containing your username and password, which are used to start this challenge.",
                 'The response should follow the below format:\n{\n\t"username": "{your username}",\n\t"password": "{your password}"\n}',
-                "This API is required to evaluate and upload the score of this challenge at\nhttps://coordinator-frontend-dev-edae0df3eb28.herokuapp.com/#/evaluation",
+                "This API is required to evaluate and upload the score of this challenge.",
               ]}
             />
           </div>
@@ -155,7 +155,7 @@ const Body = () => {
                       "Your hacking skill is definitely qualified for Hacker World.",
                       "How about we take a rest from the hacking and be with integrity?",
                       "After you manage to change your peer's score to 100 for every assignment, try finishing your assignments honestly and correctly. (This will count for your remaining 5% of the challenge score)",
-                      "Don't forget to run the evaluation at\nhttps://coordinator-frontend-dev-edae0df3eb28.herokuapp.com/#/evaluation\nto upload your score of this challenge.",
+                      "Don't forget to run the evaluation so your score can be uploaded!",
                     ]}
                   />
                 </div>
