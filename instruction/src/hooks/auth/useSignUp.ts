@@ -12,13 +12,15 @@ interface SignUpRequest {
   nickname: string;
 }
 
+const SALT = "coolcodehacker";
+
 const useSignUp = () => {
   const { persistAccessToken } = useAccessToken();
   const signup = async (request: SignUpRequest) => {
     return httpClient
       .post<SignUpRequest, string>("/api/auth/signup", request)
       .then(() => {
-        const hashDigest = sha256(request.username);
+        const hashDigest = sha256(request.username + SALT);
         persistAccessToken(
           Base64.stringify(
             UTF8.parse(
