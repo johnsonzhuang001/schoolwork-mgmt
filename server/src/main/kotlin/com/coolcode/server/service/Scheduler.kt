@@ -12,7 +12,7 @@ class Scheduler(
         val logger = LogManager.getLogger()
     }
 
-    @Scheduled(fixedRate = 300000) // Every 5 minutes
+    @Scheduled(fixedRate = 120000) // Every 2 minutes
     fun scoreAssignments() {
         logger.info("Scheduling to update scores of assignments")
         assignmentService.mentorTryingToCorrectScore()
