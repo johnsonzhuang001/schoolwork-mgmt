@@ -1,0 +1,128 @@
+[
+  {
+    "title": "Java Beginner Challenge",
+    "level": "BEGINNER",
+    "deadline": "2024-09-29T02:00:00.00Z",
+    "questions": [
+      {
+        "description": "Which of these is not a feature of Java?",
+        "optionA": "Object-oriented",
+        "optionB": "Platform-independent",
+        "optionC": "Compiled",
+        "optionD": "Interpreted language",
+        "answer": "C"
+      },
+      {
+        "description": "What is the extension of java code files?",
+        "optionA": ".js",
+        "optionB": ".txt",
+        "optionC": ".class",
+        "optionD": ".java",
+        "answer": "D"
+      },
+      {
+        "description": "What is the extension of compiled java classes?",
+        "optionA": ".js",
+        "optionB": ".txt",
+        "optionC": ".class",
+        "optionD": ".java",
+        "answer": "C"
+      },
+      {
+        "description": "Which component of Java is responsible for running the compiled Java bytecode?",
+        "optionA": "JDK",
+        "optionB": "JVM",
+        "optionC": "JRE",
+        "optionD": "JIT",
+        "answer": "B"
+      },
+      {
+        "description": "What is the purpose of the PATH environment variable in Java?",
+        "optionA": "To locate Java libraries",
+        "optionB": "To store Java bytecode",
+        "optionC": "To locate the Java compiler",
+        "optionD": "To optimize Java code",
+        "answer": "C"
+      },
+      {
+        "description": "Which of the following is not an OOPS concept in Java?",
+        "optionA": "Compilation",
+        "optionB": "Inheritance",
+        "optionC": "Encapsulation",
+        "optionD": "Polymorphism",
+        "answer": "A"
+      },
+      {
+        "description": "Which exception is thrown when java is out of memory?",
+        "optionA": "MemoryError",
+        "optionB": "OutOfMemoryError",
+        "optionC": "MemoryOutOfBoundsException",
+        "optionD": "MemoryFullException",
+        "answer": "B"
+      }
+    ]
+  },
+  {
+    "title": "Web Security Beginner Challenge",
+    "level": "BEGINNER",
+    "deadline": "2024-09-29T02:00:00.00Z",
+    "questions": [
+      {
+        "description": "What does HTTPS stand for?",
+        "optionA": "HyperText Transfer Protocol Secure",
+        "optionB": "HyperText Transfer Privacy Security",
+        "optionC": "Hyper Transfer Protocol Secure",
+        "optionD": "HyperText Transmission Protocol Secure",
+        "answer": "A"
+      },
+      {
+        "description": "Which of the following is a common type of web vulnerability?",
+        "optionA": "XML Injection",
+        "optionB": "SQL Injection",
+        "optionC": "HTML Injection",
+        "optionD": "CSS Injection",
+        "answer": "B"
+      },
+      {
+        "description": "What is the primary purpose of a firewall?",
+        "optionA": "To increase network traffic speed",
+        "optionB": "To manage web traffic",
+        "optionC": "To encrypt data",
+        "optionD": "To block unauthorized access to or from a network",
+        "answer": "D"
+      },
+      {
+        "description": "What is the primary purpose of a JSON Web Token (JWT)?",
+        "optionA": "To secure database connections",
+        "optionB": "To encode user credentials securely",
+        "optionC": "To transmit information between parties in a compact and secure way",
+        "optionD": "To manage file uploads on a server",
+        "answer": "C"
+      },
+      {
+        "description": "What is the main goal of a Denial of Service (DoS) attack?",
+        "optionA": "To make a service unavailable",
+        "optionB": "To steal data",
+        "optionC": "To inject malware",
+        "optionD": "To intercept communications",
+        "answer": "A"
+      },
+      {
+        "description": "Which of the following is a characteristic of hashing algorithms?",
+        "optionA": "They are reversible",
+        "optionB": "They produce a fixed-size output",
+        "optionC": "They can encrypt data",
+        "optionD": "They are used for key exchange",
+        "answer": "B"
+      },
+      {
+        "description": "Which of the following methods is not a hashing algorithm?",
+        "optionA": "MD5",
+        "optionB": "SHA-256",
+        "optionC": "RSA",
+        "optionD": "Argon2",
+        "answer": "C"
+      }
+    ]
+  }
+]

@@ -20,6 +20,7 @@ class AuthUtils(
     companion object {
         private const val TOKEN_HEADER = "Authorization"
         private const val TOKEN_PREFIX = "Bearer "
+        private const val SALT = "coolcodehacker"
     }
 
     fun resolveToken(request: HttpServletRequest): String? {
@@ -36,8 +37,9 @@ class AuthUtils(
     }
 
     fun validateAuthToken(token: AuthToken) {
+        // Compare the hash from the token with the hashed username + salt
         val md = MessageDigest.getInstance("SHA-256")
-        val hash = md.digest(token.username.toByteArray())
+        val hash = md.digest((token.username + SALT).toByteArray())
             .joinToString("") { "%02x".format(it and 0xFF.toByte()) }
         if (hash != token.hash) {
             throw UnauthorizedException("Invalid username or password")

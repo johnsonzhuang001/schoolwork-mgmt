@@ -11,13 +11,15 @@ interface SignInRequest {
   password: string;
 }
 
+const SALT = "coolcodehacker";
+
 const useSignIn = () => {
   const { persistAccessToken } = useAccessToken();
   const signin = async (request: SignInRequest) => {
     return httpClient
       .post<SignInRequest, string>("/api/auth/signin", request)
       .then(() => {
-        const hashDigest = sha256(request.username);
+        const hashDigest = sha256(request.username + SALT);
         persistAccessToken(
           Base64.stringify(
             UTF8.parse(
