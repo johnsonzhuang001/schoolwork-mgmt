@@ -76,10 +76,12 @@ class EvaluationService(
         // 30% for overriding peer's score
         if (progress.isPeerScoreOverriden()) score = score.plus(BigDecimal("30"))
         // 35% for overriding mentor's password
-        if (progress.isMentorPasswordOverridden()) score = score.plus(BigDecimal("35"))
-        // 30% for having all of peer's assignments get full score
-        if (isAllScoreOverridden(peer)) {
-            score = score.plus(BigDecimal("30"))
+        if (progress.isMentorPasswordOverridden()) {
+            score = score.plus(BigDecimal("35"))
+            // 30% for having all of peer's assignments get full score
+            if (isAllScoreOverridden(peer)) {
+                score = score.plus(BigDecimal("30"))
+            }
         }
         // 5% for honestly finishing all the assignments
         val assignments = assignmentRepository.findAll().toList()
