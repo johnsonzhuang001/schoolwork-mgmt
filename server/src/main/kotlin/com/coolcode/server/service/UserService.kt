@@ -86,8 +86,8 @@ class UserService(
             updatedAt = now,
         ))
         logger.info("User created for ${request.username}")
-        createPeerAndMentor(user)
         initializeChallengeProgress(user)
+        createPeerAndMentor(user)
         return user
     }
 
@@ -99,6 +99,8 @@ class UserService(
     }
 
     fun updateProfile(self: User, request: ProfileUpdateRequest): User {
+        validateNickNameFormat(request.nickname)
+        validateBiographyFormat(request.biography)
         val existingUser = getExistingUserAndValidateOwnership(self, request.username)
         existingUser.nickname = request.nickname
         existingUser.biography = request.biography
@@ -218,10 +220,11 @@ class UserService(
     }
 
     private fun validate(request: SignupRequest) {
+        validateUsernameFormat(request.username)
+        validatePasswordFormat(request.password)
         if (userRepository.findByUsername(request.username) != null) {
             throw ValidationException("User already exists for ${request.username}")
         }
-        validatePasswordFormat(request.password)
     }
 
     private fun getExistingUserAndValidateOwnership(user: User, username: String): User {
@@ -231,9 +234,27 @@ class UserService(
         return userRepository.findByUsername(username) ?: throw NotFoundException("User $username does not exist.")
     }
 
+    private fun validateUsernameFormat(username: String) {
+        if (username.length < 6 || username.length > 16) {
+            throw ValidationException("Username should be 6 to 16 characters long.")
+        }
+    }
+
     private fun validatePasswordFormat(password: String) {
         if (!PasswordUtils.isValidPassword(password)) {
             throw ValidationException("Password should contain at least one lowercase and uppercase alphabet, one number, one special character @.#$!%*?&^, and with length between 8 and 15.")
+        }
+    }
+
+    private fun validateNickNameFormat(nickname: String) {
+        if (nickname.length > 16) {
+            throw ValidationException("Nick name should not exceed 16 characters.")
+        }
+    }
+
+    private fun validateBiographyFormat(biography: String) {
+        if (biography.length > 500) {
+            throw ValidationException("Biography should not exceed 500 characters.")
         }
     }
 }

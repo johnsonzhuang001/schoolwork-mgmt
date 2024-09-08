@@ -12,7 +12,7 @@ class PasswordUtils {
         }
 
         fun isValidPassword(password: String): Boolean {
-            val regex = Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@.#$!%*?&^])[A-Za-z\\d@.#$!%*?&]{8,15}$")
+            val regex = Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@.#$!%*?&^])[A-Za-z\\d@.#$!%*?&]{8,16}$")
             return password.matches(regex)
         }
     }
