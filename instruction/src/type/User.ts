@@ -16,4 +16,5 @@ export interface ProgressDto {
   peerScoreOverridden: boolean;
   mentorPasswordOverridden: boolean;
   peerAllScoresOverridden: boolean;
+  startedAt: string;
 }

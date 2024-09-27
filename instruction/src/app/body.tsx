@@ -8,11 +8,43 @@ import SignUpForm from "@/components/SignUpForm";
 import useSelf from "@/hooks/user/useSelf";
 import useProgress from "@/hooks/user/useProgress";
 import ScoreBoard from "@/components/ScoreBoard";
+import { useMemo } from "react";
 
 const Body = () => {
   const { self, isLoading } = useSelf();
   const { progress } = useProgress();
   const hasStarted = !isLoading && !!self;
+
+  const hints = useMemo(() => {
+    const challengeDuration = progress?.startedAt
+      ? new Date().getTime() - new Date(progress.startedAt).getTime()
+      : 0;
+    if (progress?.peerScoreOverridden || challengeDuration < 10800000) {
+      // < 3 hrs
+      return ["HINT: Make good use of the browser dev tools."];
+    }
+    if (challengeDuration < 21600000) {
+      // < 6 hrs
+      return [
+        "HINT 1: Make use of Network & Sources from the browser dev tools.",
+        "HINT 2: Have you heard about JWT auth?",
+      ];
+    }
+    if (challengeDuration < 32400000) {
+      // < 9 hrs
+      return [
+        "HINT 1: Make use of Network & Sources from the browser dev tools.",
+        "HINT 2: Have you heard about JWT auth? Check the header of the request at Network.",
+        "HINT 3: Guess where and how that JWT is generated?",
+      ];
+    }
+    // > 9 hrs
+    return [
+      "HINT 1: Make use of Network & Sources from the browser dev tools.",
+      "HINT 2: Have you heard about JWT auth? Look at the header of the request at Network.",
+      "HINT 3: Guess where and how that JWT token is generated? Check the JS code at Sources.",
+    ];
+  }, [progress]);
 
   const instruction2TitleSuffix = () => {
     if (progress?.peerScoreOverridden) {
@@ -127,7 +159,7 @@ const Body = () => {
                     "Your peer got really bad grade at all assignments. Explore the website and try to override the scores for your peer. (This counts for 60% of the challenge score)",
                     "The API mentors use to upload scores is:\nPOST https://api.crazy-collectors.com/coolcode/api/assignment/score",
                     'And the request body to this API is with the below format:\n{\n\t"username": {student\'s username as string},\n\t"assignmentId": {assignment\'s ID as a number},\n\t"score": {score as a number}\n}',
-                    "HINT: Make good use of the browser dev tools.",
+                    ...hints,
                   ]}
                 />
               </div>

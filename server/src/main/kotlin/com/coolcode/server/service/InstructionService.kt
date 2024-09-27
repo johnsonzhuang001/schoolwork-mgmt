@@ -5,6 +5,7 @@ import com.coolcode.server.error.NotFoundException
 import com.coolcode.server.model.User
 import com.coolcode.server.repository.ChallengeProgressRepository
 import org.springframework.stereotype.Service
+import java.time.ZoneOffset
 
 @Service
 class InstructionService(
@@ -18,6 +19,7 @@ class InstructionService(
                 isPeerAllScoresOverridden = evaluationService.isAllScoreOverridden(user.peer!!),
                 isMentorPasswordOverridden = it.isMentorPasswordOverridden(),
                 score = evaluationService.evaluate(user.username),
+                startedAt = it.createdAt.atZone(ZoneOffset.UTC),
             )
         } ?: throw NotFoundException("User ${user.username} is not a challenger.")
     }
