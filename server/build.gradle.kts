@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.coolcode.server"
-version = "0.0.8"
+version = "0.0.9"
 
 java {
     toolchain {
