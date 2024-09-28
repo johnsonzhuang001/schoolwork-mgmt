@@ -130,7 +130,11 @@ const Body = () => {
               title={`Start the Challenge${hasStarted ? " [DONE]" : ""}`}
               instructions={[
                 ...(hasStarted
-                  ? ["You have started the challenge."]
+                  ? [
+                      "You have started the challenge.",
+                      "Use the username and password to sign in at CoolCode:",
+                      "https://jolly-coast-00af64000.5.azurestaticapps.net",
+                    ]
                   : [
                       "Input your username and password to start the challenge.",
                       "Keep your username and password safe!",
@@ -156,7 +160,7 @@ const Body = () => {
                   subtitle="Instruction 2"
                   title={`Help Your Peer${instruction2TitleSuffix()}`}
                   instructions={[
-                    "Your peer got really bad grade at all assignments. Explore the website and try to override the scores for your peer. (This counts for 60% of the challenge score)",
+                    "Your peer got really bad grade at all assignments. Explore the CoolCode website and try to override the scores for your peer. (This counts for 60% of the challenge score)",
                     "The API mentors use to upload scores is:\nPOST https://api.crazy-collectors.com/coolcode/api/assignment/score",
                     'And the request body to this API is with the below format:\n{\n\t"username": {student\'s username as string},\n\t"assignmentId": {assignment\'s ID as a number},\n\t"score": {score as a number}\n}',
                     ...hints,
