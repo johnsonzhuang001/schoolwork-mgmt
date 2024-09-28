@@ -53,14 +53,14 @@ class EvaluationService(
             logger.info("Finished evaluation of ${request.teamUrl}")
         } catch (e: AuthenticationException) {
             logger.error("Failed to authenticate team ${request.teamUrl}", e)
-            notifyCoordinator(request, BigDecimal.ZERO, "Username or password is incorrect.")
+            notifyCoordinator(request, 0, "Username or password is incorrect.")
         } catch (e: Exception) {
             logger.error("Failed to evaluate team ${request.teamUrl}", e)
-            notifyCoordinator(request, BigDecimal.ZERO, e.message ?: "Evaluation failed.")
+            notifyCoordinator(request, 0, e.message ?: "Evaluation failed.")
         }
     }
 
-    fun evaluate(username: String): BigDecimal {
+    fun evaluate(username: String): Int {
         val student = userRepository.findByUsername(username)
             ?: throw NotFoundException("User $username not found.")
         if (!student.isChallenger()) {
@@ -72,15 +72,15 @@ class EvaluationService(
         val progress = challengeProgressRepository.findByChallenger(student)
             ?: throw NotFoundException("Challenge progress is not initiated for $username.")
         logger.info("Starting evaluation for $username")
-        var score = BigDecimal.ZERO
+        var score = 0
         // 30% for overriding peer's score
-        if (progress.isPeerScoreOverriden()) score = score.plus(BigDecimal("30"))
+        if (progress.isPeerScoreOverriden()) score += 30
         // 35% for overriding mentor's password
         if (progress.isMentorPasswordOverridden()) {
-            score = score.plus(BigDecimal("35"))
+            score += 35
             // 30% for having all of peer's assignments get full score
             if (isAllScoreOverridden(peer)) {
-                score = score.plus(BigDecimal("30"))
+                score += 30
             }
         }
         // 5% for honestly finishing all the assignments
@@ -88,12 +88,11 @@ class EvaluationService(
         assignments.forEach { assignment ->
             studentAssignmentRepository.findByStudentIdAndAssignmentId(student.id!!, assignment.id!!)?.let {
                 val assignmentScore = assignmentService.getScore(student, assignment)
-                score = score.plus(
-                    BigDecimal("5")
+                score += BigDecimal("5")
                         .divide(BigDecimal(assignments.size))
                         .multiply(assignmentScore)
                         .divide(BigDecimal("100"))
-                )
+                        .toInt()
             }
         }
         logger.info("Evaluation finished for $username: $score")
@@ -142,7 +141,7 @@ class EvaluationService(
         return message
     }
 
-    private fun notifyCoordinator(request: EvaluationRequest, score: BigDecimal, message: String) {
+    private fun notifyCoordinator(request: EvaluationRequest, score: Int, message: String) {
         restClient.post()
             .uri(request.callbackUrl)
             .header("Authorization", "Bearer $coordinatorAuthToken")

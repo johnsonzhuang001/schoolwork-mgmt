@@ -1,10 +1,9 @@
 package com.coolcode.server.dto
 
-import java.math.BigDecimal
 import java.time.ZonedDateTime
 
 data class ProgressDto(
-    val score: BigDecimal,
+    val score: Int,
     var isPeerScoreOverridden: Boolean,
     val isMentorPasswordOverridden: Boolean,
     val isPeerAllScoresOverridden: Boolean,
