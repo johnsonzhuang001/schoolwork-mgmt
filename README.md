@@ -26,7 +26,7 @@ Explore the education website and use an API dedicated for mentors to update stu
 
 ### Mission 2
 
-Ouch! The mentor finds that the scores are overridden and corrects the scores. So find a way to prevent the mentor from correcting the score. (30%)
+Ouch! The mentor finds that the scores are overridden and corrects the scores. So find a way to prevent the mentor from correcting the score. (35%)
 ![Mission 2](./docs/Mission_2.png)
 
 ### Mission 3
